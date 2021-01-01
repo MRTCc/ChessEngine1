@@ -35,8 +35,8 @@ blackqueen = [g8]
 whiteking = [a1]
 blackking = [a8]
 enpassantcells = []
-whitecastlingrights = ['wk', 'wq']
-blackcastlingrights = ['bk', 'bq']
+whitecastlingrights = {'wk': True, 'wq': True}
+blackcastlingrights = {'bk': True, 'bq': True}
 
 whitepawnonestep = {a7: a8, b7: b8, c7: c8, d7: d8, e7: e8, f7: f8, g7: g8, h7: h8,
                     a6: a7, b6: b7, c6: c7, d6: d7, e6: e7, f6: f7, g6: g7, h6: h7,
@@ -531,9 +531,9 @@ def white_generator_moves():
         destinationlist = white_king_generator(fromcell)
         for tocell in destinationlist:
             yield white_piece_move_factory(fromcell, tocell, 'wK')
-    if 'wk' in whitecastlingrights:
+    if whitecastlingrights['wk']:
         yield king_castling_move_factory(True)
-    if 'wq' in whitecastlingrights:
+    if whitecastlingrights['wq']:
         yield queen_castling_move_factory(True)
 
 
@@ -562,13 +562,383 @@ def black_generator_moves():
         destinationlist = black_king_generator(fromcell)
         for tocell in destinationlist:
             yield black_piece_move_factory(fromcell, tocell, 'bK')
-    if 'bk' in blackcastlingrights:
+    if blackcastlingrights['bk']:
         yield king_castling_move_factory(False)
-    if 'bq' in blackcastlingrights:
+    if blackcastlingrights['bq']:
         yield queen_castling_move_factory(False)
 
 
+class ListPiece:
+    def __init__(self):
+        self.moves = []
+        global occupiedcells, whiteoccupiedcells, blackoccupiedcells, whitepawns, blackpawns, whiterooks, blackrooks
+        global whiteknights, blackknights, whitebishops, blackbishops, whitequeen, blackqueen, whiteking, blackking
+        global enpassantcells, whitecastlingrights, blackcastlingrights
+        occupiedcells = []
+        whiteoccupiedcells = []
+        blackoccupiedcells = []
+        whitepawns = []
+        blackpawns = []
+        whiterooks = []
+        blackrooks = []
+        whiteknights = []
+        blackknights = []
+        whitebishops = []
+        blackbishops = []
+        whitequeen = []
+        blackqueen = []
+        whiteking = []
+        blackking = []
+        enpassantcells = []
+        whitecastlingrights = {'wk': True, 'wq': True}
+        blackcastlingrights = {'bk': True, 'bq': True}
+
+    @staticmethod
+    def set_castlingrights(whitekingside=None, whitequeenside=None, blackkingside=None, blackqueenside=None):
+        if whitekingside in (True, False):
+            whitecastlingrights['wk'] = whitekingside
+        if whitequeenside in (True, False):
+            whitecastlingrights['wq'] = whitequeenside
+        if blackkingside in (True, False):
+            blackcastlingrights['bk'] = blackkingside
+        if blackqueenside in (True, False):
+            blackcastlingrights['bq'] = blackqueenside
+
+    @staticmethod
+    def add_white_pawn(cell):
+        whitepawns.append(cell)
+        whiteoccupiedcells.append(cell)
+        occupiedcells.append(cell)
+
+    @staticmethod
+    def add_black_pawn(cell):
+        blackpawns.append(cell)
+        blackoccupiedcells.append(cell)
+        occupiedcells.append(cell)
+
+    @staticmethod
+    def add_white_rook(cell):
+        whiterooks.append(cell)
+        whiteoccupiedcells.append(cell)
+        occupiedcells.append(cell)
+
+    @staticmethod
+    def add_black_rook(cell):
+        blackrooks.append(cell)
+        blackoccupiedcells.append(cell)
+        occupiedcells.append(cell)
+
+    @staticmethod
+    def add_white_knight(cell):
+        whiteknights.append(cell)
+        whiteoccupiedcells.append(cell)
+        occupiedcells.append(cell)
+
+    @staticmethod
+    def add_black_knight(cell):
+        blackknights.append(cell)
+        blackoccupiedcells.append(cell)
+        occupiedcells.append(cell)
+
+    @staticmethod
+    def add_white_bishop(cell):
+        whitebishops.append(cell)
+        whiteoccupiedcells.append(cell)
+        occupiedcells.append(cell)
+
+    @staticmethod
+    def add_black_bishop(cell):
+        blackbishops.append(cell)
+        blackoccupiedcells.append(cell)
+        occupiedcells.append(cell)
+
+    @staticmethod
+    def add_white_queen(cell):
+        whitequeen.append(cell)
+        whiteoccupiedcells.append(cell)
+        occupiedcells.append(cell)
+
+    @staticmethod
+    def add_black_queen(cell):
+        blackqueen.append(cell)
+        blackoccupiedcells.append(cell)
+        occupiedcells.append(cell)
+
+    @staticmethod
+    def add_white_king(cell):
+        whiteking.append(cell)
+        whiteoccupiedcells.append(cell)
+        occupiedcells.append(cell)
+
+    @staticmethod
+    def add_black_king(cell):
+        blackking.append(cell)
+        blackoccupiedcells.append(cell)
+        occupiedcells.append(cell)
+
+    @staticmethod
+    def set_enpassant(cell):
+        enpassantcells.append(cell)
+
+    @staticmethod
+    def get_piece_by_cell(cell):
+        if cell in whiteoccupiedcells:
+            if cell in whitepawns:
+                return 'wP'
+            elif cell in whiterooks:
+                return 'wR'
+            elif cell in whiteknights:
+                return 'wN'
+            elif cell in whitebishops:
+                return 'wB'
+            elif cell in whitequeen:
+                return 'wQ'
+            elif cell in whiteking:
+                return 'wK'
+            else:
+                raise ValueError("dictgeneratormodule.py : Listpiece.get_piece_by_cell --> board not consistent!!!")
+        elif cell in blackoccupiedcells:
+            if cell in blackpawns:
+                return 'bP'
+            elif cell in blackrooks:
+                return 'bR'
+            elif cell in blackknights:
+                return 'bN'
+            elif cell in blackbishops:
+                return 'bB'
+            elif cell in blackqueen:
+                return 'bQ'
+            elif cell in blackking:
+                return 'bK'
+            else:
+                raise ValueError("dictgeneratormodule.py : Listpiece.get_piece_by_cell --> board not consistent!!!")
+        else:
+            return None
+
+    @staticmethod
+    def get_promoted_piece(piece, tocell):
+        if piece is 'wP' and tocell in promotioncells:
+            return 'wQ'
+        if piece is 'bP' and tocell in promotioncells:
+            return 'bQ'
+        return None
+
+    @staticmethod
+    def _get_active_occupied_list(iswhiteturn):
+        if iswhiteturn:
+            return whiteoccupiedcells, blackoccupiedcells
+        else:
+            return blackoccupiedcells, whiteoccupiedcells
+
+    @staticmethod
+    def _get_list_by_piece(piece):
+        listbypiece = {'wP': whitepawns, 'wR': whiterooks, 'wN': whiteknights, 'wB': whitebishops, 'wQ': whitequeen,
+                       'wK': whiteking,
+                       'bP': blackpawns, 'bR': blackrooks, 'bN': blackknights, 'bB': blackbishops, 'bQ': blackqueen,
+                       'bK': blackking}
+        try:
+            lookup = listbypiece[piece]
+        except KeyError:
+            lookup = None
+        return lookup
+
+    def applymove(self, move):
+        self.moves.append(move)
+        activeoccupiedlist, enemyoccupiedlist = self._get_active_occupied_list(move.iswhiteturn)
+        activepiecelist = self._get_list_by_piece(move.piece)
+        capturepiecelist = self._get_list_by_piece(move.capturedpiece)
+        promotionlist = self._get_list_by_piece(move.promotionto)
+        occupiedcells.remove(move.fromcell)
+        activeoccupiedlist.remove(move.fromcell)
+        activepiecelist.remove(move.fromcell)
+        if capturepiecelist is not None:
+            occupiedcells.remove(move.tocell)
+            enemyoccupiedlist.remove(move.tocell)
+            capturepiecelist.remove(move.tocell)
+        if promotionlist is not None:
+            promotionlist.append(move.tocell)
+        else:
+            activepiecelist.append(move.tocell)
+        activeoccupiedlist.append(move.tocell)
+        occupiedcells.append(move.tocell)
+
+    @staticmethod
+    def isboardvalid():
+        if len(whiteking) != 1:
+            return False
+        if len(blackking) != 1:
+            return False
+        for enp in enpassantcells:
+            if enp not in alg.enpassantlist:
+                return False
+        return True
+
+    def is_white_king_in_check(self):
+        # TODO funzione di controllo dello scacco sul re bianco
+        pass
+
+    def is_black_king_in_check(self):
+        # TODO funzione di controllo dello scacco sul re nero
+        pass
+
+    @staticmethod
+    def count_doubled_pawns():
+        whitecount = {'a': 0, 'b': 0, 'c': 0, 'd': 0, 'e': 0, 'f': 0, 'g': 0, 'h': 0}
+        blackcount = {'a': 0, 'b': 0, 'c': 0, 'd': 0, 'e': 0, 'f': 0, 'g': 0, 'h': 0}
+        for cell in whitepawns:
+            whitecount[cell.getrank()] += 1
+        for cell in blackpawns:
+            blackcount[cell.getrank()] += 1
+        whitedoubled = 0
+        blackdoubled = 0
+        for count in whitecount.values():
+            if count > 1:
+                whitedoubled += 1
+        for count in blackcount.values():
+            if count > 1:
+                blackdoubled += 1
+        return whitedoubled, blackdoubled
+
+    @staticmethod
+    def count_blocked_pawns():
+        whiteblocked = 0
+        blackblocked = 0
+        for cell in whitepawns:
+            tocell = cell.sumcoordinate(0, 1)
+            if tocell in occupiedcells:
+                whiteblocked += 1
+        for cell in blackpawns:
+            tocell = cell.sumcoordinate(0, -1)
+            if tocell in occupiedcells:
+                blackblocked += 1
+        return whiteblocked, blackblocked
+
+    @staticmethod
+    def count_isolated_pawns():
+        check = {'a': ('b',), 'b': ('a', 'c'), 'c': ('b', 'd'), 'd': ('c', 'e'), 'e': ('d', 'f'), 'f': ('e', 'g'),
+                 'g': ('f', 'h'), 'h': ('g',)}
+        ranklist = []
+        whiteisolated = 0
+        for cell in whitepawns:
+            ranklist.append(cell.getrank())
+        for rank in ranklist:
+            isolated = True
+            for ranktocheck in check[rank]:
+                if ranktocheck in ranklist:
+                    isolated = False
+                    break
+            if isolated:
+                whiteisolated += 1
+        ranklist = []
+        blackisolated = 0
+        for cell in blackpawns:
+            ranklist.append(cell.getrank())
+        for rank in ranklist:
+            isolated = True
+            for ranktocheck in check[rank]:
+                if ranktocheck in ranklist:
+                    isolated = False
+            if isolated:
+                blackisolated += 1
+        return whiteisolated, blackisolated
+
+    @staticmethod
+    def get_white_pieces():
+        for i in range(0, len(whitepawns)):
+            yield 'wP'
+        for i in range(0, len(whiterooks)):
+            yield 'wR'
+        for i in range(0, len(whiteknights)):
+            yield 'wN'
+        for i in range(0, len(whitebishops)):
+            yield 'wB'
+        for i in range(0, len(whitequeen)):
+            yield 'wQ'
+        for i in range(0, len(whiteking)):
+            yield 'wK'
+
+    @staticmethod
+    def get_black_pieces():
+        for i in range(0, len(blackpawns)):
+            yield 'bP'
+        for i in range(0, len(blackrooks)):
+            yield 'bR'
+        for i in range(0, len(blackknights)):
+            yield 'bN'
+        for i in range(0, len(blackbishops)):
+            yield 'bB'
+        for i in range(0, len(blackqueen)):
+            yield 'bQ'
+        for i in range(0, len(blackking)):
+            yield 'bK'
+
+    def __str__(self):
+        # solo per debug
+        print("occupiedcells: ", occupiedcells)
+        print("whiteoccupiedcells: ", whiteoccupiedcells)
+        print("blackoccupiedcells: ", blackoccupiedcells)
+        print("whitepawns: ", whitepawns)
+        print("blackpawns: ", blackpawns)
+        print("promotioncells: ", promotioncells)
+        print("whiterooks: ", whiterooks)
+        print("blackrooks: ", blackrooks)
+        print("whiteknights: ", whiteknights)
+        print("blackknights: ", blackknights)
+        print("whitebishops: ", whitebishops)
+        print("blackbishops: ", blackbishops)
+        print("whitequeen: ", whitequeen)
+        print("blackqueen: ", blackqueen)
+        print("whiteking: ", whiteking)
+        print("blackking: ", blackking)
+        print("enpassantcells: ", enpassantcells)
+        print("whitecastlingrights: ", whitecastlingrights)
+        print("blackcastlingrights: ", blackcastlingrights)
+
+        # bisogna costruire la variabile board
+        board = {}
+        for cell in alg.celllist:
+            if cell in whitepawns:
+                board[cell] = 'wP'
+            elif cell in blackpawns:
+                board[cell] = 'bP'
+            elif cell in whiteknights:
+                board[cell] = 'wN'
+            elif cell in blackknights:
+                board[cell] = 'bN'
+            elif cell in whitebishops:
+                board[cell] = 'wB'
+            elif cell in blackbishops:
+                board[cell] = 'bB'
+            elif cell in whiterooks:
+                board[cell] = 'wR'
+            elif cell in blackrooks:
+                board[cell] = 'bR'
+            elif cell in whitequeen:
+                board[cell] = 'wQ'
+            elif cell in blackqueen:
+                board[cell] = 'bQ'
+            elif cell in whiteking:
+                board[cell] = 'wK'
+            elif cell in blackking:
+                board[cell] = 'bK'
+            else:
+                board[cell] = '--'
+        strlist = [str(board[coordinate]) for coordinate in alg.celllist]
+        result = ("|%s|%s|%s|%s|%s|%s|%s|%s|\n" +
+                  "|%s|%s|%s|%s|%s|%s|%s|%s|\n" +
+                  "|%s|%s|%s|%s|%s|%s|%s|%s|\n" +
+                  "|%s|%s|%s|%s|%s|%s|%s|%s|\n" +
+                  "|%s|%s|%s|%s|%s|%s|%s|%s|\n" +
+                  "|%s|%s|%s|%s|%s|%s|%s|%s|\n" +
+                  "|%s|%s|%s|%s|%s|%s|%s|%s|\n" +
+                  "|%s|%s|%s|%s|%s|%s|%s|%s|\n") % tuple(strlist)
+
+        return result
+
+
 if __name__ == '__main__':
+    l = ListPiece()
+    print(l)
 
     for move in black_generator_moves():
         print(move)
