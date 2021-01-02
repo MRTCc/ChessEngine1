@@ -441,6 +441,8 @@ class MinimaxGamePosition:
             return
         for move in position.moves:
             position.applymove(move)
+            # qui si controlla se la mossa non lascia il proprio re in presa
+            # se il proprio re viene lasciato in presa, allora la mossa va annullata ed eliminata
             child = position.enemy_game_position_func(position.listpiece, position)
             try:
                 self.minimaxformin(child, depthleft - 1)

@@ -746,21 +746,113 @@ class ListPiece:
         self.moves.append(move)
         activeoccupiedlist, enemyoccupiedlist = self._get_active_occupied_list(move.iswhiteturn)
         activepiecelist = self._get_list_by_piece(move.piece)
-        capturepiecelist = self._get_list_by_piece(move.capturedpiece)
+        capturedpiecelist = self._get_list_by_piece(move.capturedpiece)
         promotionlist = self._get_list_by_piece(move.promotionto)
-        occupiedcells.remove(move.fromcell)
-        activeoccupiedlist.remove(move.fromcell)
-        activepiecelist.remove(move.fromcell)
-        if capturepiecelist is not None:
-            occupiedcells.remove(move.tocell)
-            enemyoccupiedlist.remove(move.tocell)
-            capturepiecelist.remove(move.tocell)
-        if promotionlist is not None:
-            promotionlist.append(move.tocell)
+        if activepiecelist is not None:
+            occupiedcells.remove(move.fromcell)
+            activeoccupiedlist.remove(move.fromcell)
+            activepiecelist.remove(move.fromcell)
+            if capturedpiecelist is not None:
+                if move.isenpassant:
+                    if move.iswhiteturn:
+                        tocell = move.tocell.sumcoordinate(0, -1)
+                    else:
+                        tocell = move.tocell.sumcoordinate(0, +1)
+                else:
+                    tocell = move.tocell
+                occupiedcells.remove(tocell)
+                enemyoccupiedlist.remove(tocell)
+                capturedpiecelist.remove(tocell)
+            if promotionlist is not None:
+                promotionlist.append(move.tocell)
+            else:
+                activepiecelist.append(move.tocell)
+            activeoccupiedlist.append(move.tocell)
+            occupiedcells.append(move.tocell)
         else:
-            activepiecelist.append(move.tocell)
-        activeoccupiedlist.append(move.tocell)
-        occupiedcells.append(move.tocell)
+            if move.iswhiteturn:
+                if move.iskingcastling:
+                    whiteking.remove(e1)
+                    whiteking.append(g1)
+                    whiterooks.remove(h1)
+                    whiterooks.append(f1)
+                    whitecastlingrights['wk'] = False
+                if move.isqueencastling:
+                    whiteking.remove(e1)
+                    whiteking.append(c1)
+                    whiterooks.remove(a1)
+                    whiterooks.append(d1)
+                    whitecastlingrights['wq'] = False
+            else:
+                if move.iskingcastling:
+                    blackking.remove(e8)
+                    blackking.append(g8)
+                    blackrooks.remove(h8)
+                    blackrooks.append(f8)
+                    blackcastlingrights['bk'] = False
+                if move.isqueencastling:
+                    blackking.remove(e8)
+                    blackking.append(c8)
+                    blackrooks.remove(a8)
+                    blackrooks.append(d8)
+                    blackcastlingrights['bq'] = False
+
+    def undomove(self, move):
+        activeoccupiedlist, enemyoccupiedlist = self._get_active_occupied_list(move.iswhiteturn)
+        activepiecelist = self._get_list_by_piece(move.piece)
+        capturedpiecelist = self._get_list_by_piece(move.capturedpiece)
+        promotionlist = self._get_list_by_piece(move.promotionto)
+        if activepiecelist is not None:
+            if promotionlist is not None:
+                activeoccupiedlist.remove(move.tocell)
+                occupiedcells.remove(move.tocell)
+                promotionlist.remove(move.tocell)
+            if capturedpiecelist is not None:
+                if move.isenpassant:
+                    if move.iswhiteturn:
+                        tocell = move.tocell.sumcoordinate(0, -1)
+                    else:
+                        tocell = move.tocell.sumcoordinate(0, +1)
+                else:
+                    tocell = move.tocell
+                occupiedcells.append(tocell)
+                enemyoccupiedlist.append(tocell)
+                capturedpiecelist.append(tocell)
+            if promotionlist is None and capturedpiecelist is None:
+                occupiedcells.remove(move.tocell)
+                activeoccupiedlist.remove(move.tocell)
+                activepiecelist.remove(move.tocell)
+            occupiedcells.append(move.fromcell)
+            activeoccupiedlist.append(move.fromcell)
+            activepiecelist.append(move.fromcell)
+        else:
+            if move.iswhiteturn:
+                if move.iskingcastling:
+                    whiteking.remove(g1)
+                    whiteking.append(e1)
+                    whiterooks.remove(f1)
+                    whiterooks.append(h1)
+                    whitecastlingrights['wk'] = True
+                if move.isqueencastling:
+                    whiteking.remove(c1)
+                    whiteking.append(e1)
+                    whiterooks.remove(d1)
+                    whiterooks.append(a1)
+                    whitecastlingrights['wq'] = True
+            else:
+                if move.iskingcastling:
+                    blackking.remove(g8)
+                    blackking.append(e8)
+                    blackrooks.remove(f8)
+                    blackrooks.append(h8)
+                    blackcastlingrights['bk'] = True
+                if move.isqueencastling:
+                    blackking.remove(c8)
+                    blackking.append(e8)
+                    blackrooks.remove(d8)
+                    blackrooks.append(a8)
+                    blackcastlingrights['bq'] = True
+        self.moves.remove(move)
 
     @staticmethod
     def isboardvalid():
