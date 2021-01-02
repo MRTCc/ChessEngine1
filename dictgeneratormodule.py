@@ -976,6 +976,28 @@ class ListPiece:
         return False
 
     @staticmethod
+    def is_stalemate():
+        if len(whitepawns) > 0 or len(blackpawns) > 0:
+            return False
+        whitequeencount = len(whitequeen)
+        blackqueencount = len(blackqueen)
+        whiterookcount = len(whiterooks)
+        blackrookcount = len(blackrooks)
+        whiteknightcount = len(whiteknights)
+        blackknightcount = len(blackknights)
+        whitebishopcount = len(whitebishops)
+        blackbishopcount = len(blackbishops)
+        insufficientmaterialtables = [(1, 1, 0, 0, 0, 0, 0, 0), (0, 0, 1, 1, 0, 0, 0, 0), (0, 0, 0, 0, 2, 0, 0, 0),
+                                      (0, 0, 0, 0, 0, 2, 0, 0), (0, 0, 0, 0, 0, 0, 1, 1), (0, 0, 0, 0, 0, 0, 1, 0),
+                                      (0, 0, 0, 0, 0, 0, 0, 1), (0, 0, 0, 0, 1, 0, 0, 0), (0, 0, 0, 0, 0, 1, 0, 0),
+                                      (0, 0, 0, 0, 0, 0, 0, 0)]
+        if (whitequeencount, blackqueencount, whiterookcount, blackrookcount, whiteknightcount, blackknightcount,
+                whitebishopcount, blackbishopcount) in insufficientmaterialtables:
+            return True
+        else:
+            return False
+
+    @staticmethod
     def count_doubled_pawns():
         whitecount = {'a': 0, 'b': 0, 'c': 0, 'd': 0, 'e': 0, 'f': 0, 'g': 0, 'h': 0}
         blackcount = {'a': 0, 'b': 0, 'c': 0, 'd': 0, 'e': 0, 'f': 0, 'g': 0, 'h': 0}
@@ -1133,11 +1155,9 @@ class ListPiece:
 if __name__ == '__main__':
     l = ListPiece()
     l.add_white_king(e1)
-    l.add_white_pawn(d7)
     l.add_black_king(e8)
     print(l)
-    print(l.is_white_king_in_check())
-    print(l.is_black_king_in_check())
+    print(l.is_stalemate())
 
     """
     for move in black_generator_moves():
