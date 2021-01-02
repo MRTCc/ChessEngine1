@@ -18,11 +18,11 @@ class AllyOccupationException(OccupationException):
     pass
 
 
-occupiedcells = [a1, a2, a8, a7, g8]
-whiteoccupiedcells = [a1, a2]
-blackoccupiedcells = [a8, a7, g8]
-whitepawns = [a2]
-blackpawns = [a7]
+occupiedcells = []
+whiteoccupiedcells = []
+blackoccupiedcells = []
+whitepawns = []
+blackpawns = []
 promotioncells = [a8, b8, c8, d8, e8, f8, g8, h8, a1, b1, c1, d1, e1, f1, g1, h1]
 whiterooks = []
 blackrooks = []
@@ -31,9 +31,9 @@ blackknights = []
 whitebishops = []
 blackbishops = []
 whitequeen = []
-blackqueen = [g8]
-whiteking = [a1]
-blackking = [a8]
+blackqueen = []
+whiteking = []
+blackking = []
 enpassantcells = []
 whitecastlingrights = {'wk': True, 'wq': True}
 blackcastlingrights = {'bk': True, 'bq': True}
@@ -47,12 +47,33 @@ whitepawnonestep = {a7: a8, b7: b8, c7: c8, d7: d8, e7: e8, f7: f8, g7: g8, h7: 
 
 whitepawntwostep = {a2: a4, b2: b4, c2: c4, d2: d4, e2: e4, f2: f4, g2: g4, h2: h4}
 
-whitepawncapture = {a7: (None, b8), b7: (a8, c8), c7: (b8, d8), d7: (c8, e8), e7: (d8, f8), f7: (e8, g8), g7: (f8, h8), h7: (g8, None),
-                    a6: (None, b7), b6: (a7, c7), c6: (b7, d7), d6: (c7, e7), e6: (d7, f7), f6: (e7, g7), g6: (f7, h7), h6: (g7, None),
-                    a5: (None, b6), b5: (a6, c6), c5: (b6, d6), d5: (c6, e6), e5: (d6, f6), f5: (e6, g6), g5: (f6, h6), h5: (g6, None),
-                    a4: (None, b5), b4: (a5, c5), c4: (b5, d5), d4: (c5, e5), e4: (d5, f5), f4: (e5, g5), g4: (f5, h5), h4: (g5, None),
-                    a3: (None, b4), b3: (a4, c4), c3: (b4, d4), d3: (c4, e4), e3: (d4, f4), f3: (e4, g4), g3: (f4, h4), h3: (g4, None),
-                    a2: (None, b3), b2: (a3, c3), c2: (b3, d3), d2: (c3, e3), e2: (d3, f3), f2: (e3, g3), g2: (f3, h3), h2: (g3, None)}
+whitepawncapture = {a7: (None, b8), b7: (a8, c8), c7: (b8, d8), d7: (c8, e8), e7: (d8, f8), f7: (e8, g8), g7: (f8, h8),
+                    h7: (g8, None),
+                    a6: (None, b7), b6: (a7, c7), c6: (b7, d7), d6: (c7, e7), e6: (d7, f7), f6: (e7, g7), g6: (f7, h7),
+                    h6: (g7, None),
+                    a5: (None, b6), b5: (a6, c6), c5: (b6, d6), d5: (c6, e6), e5: (d6, f6), f5: (e6, g6), g5: (f6, h6),
+                    h5: (g6, None),
+                    a4: (None, b5), b4: (a5, c5), c4: (b5, d5), d4: (c5, e5), e4: (d5, f5), f4: (e5, g5), g4: (f5, h5),
+                    h4: (g5, None),
+                    a3: (None, b4), b3: (a4, c4), c3: (b4, d4), d3: (c4, e4), e3: (d4, f4), f3: (e4, g4), g3: (f4, h4),
+                    h3: (g4, None),
+                    a2: (None, b3), b2: (a3, c3), c2: (b3, d3), d2: (c3, e3), e2: (d3, f3), f2: (e3, g3), g2: (f3, h3),
+                    h2: (g3, None)}
+
+whitekingpawnrange = {a7: (None, b8), b7: (a8, c8), c7: (b8, d8), d7: (c8, e8), e7: (d8, f8), f7: (e8, g8),
+                      g7: (f8, h8), h7: (g8, None),
+                      a6: (None, b7), b6: (a7, c7), c6: (b7, d7), d6: (c7, e7), e6: (d7, f7), f6: (e7, g7),
+                      g6: (f7, h7), h6: (g7, None),
+                      a5: (None, b6), b5: (a6, c6), c5: (b6, d6), d5: (c6, e6), e5: (d6, f6), f5: (e6, g6),
+                      g5: (f6, h6), h5: (g6, None),
+                      a4: (None, b5), b4: (a5, c5), c4: (b5, d5), d4: (c5, e5), e4: (d5, f5), f4: (e5, g5),
+                      g4: (f5, h5), h4: (g5, None),
+                      a3: (None, b4), b3: (a4, c4), c3: (b4, d4), d3: (c4, e4), e3: (d4, f4), f3: (e4, g4),
+                      g3: (f4, h4), h3: (g4, None),
+                      a2: (None, b3), b2: (a3, c3), c2: (b3, d3), d2: (c3, e3), e2: (d3, f3), f2: (e3, g3),
+                      g2: (f3, h3), h2: (g3, None),
+                      a1: (None, b2), b1: (a2, c2), c1: (b2, d2), d1: (c2, e2), e1: (d2, f2), f1: (e2, g2),
+                      g1: (f2, h2), h1: (g2, None)}
 
 blackpawnonestep = {a7: a6, b7: b6, c7: c6, d7: d6, e7: e6, f7: f6, g7: g6, h7: h6,
                     a6: a5, b6: b5, c6: c5, d6: d5, e6: e5, f6: f5, g6: g5, h6: h5,
@@ -63,12 +84,33 @@ blackpawnonestep = {a7: a6, b7: b6, c7: c6, d7: d6, e7: e6, f7: f6, g7: g6, h7: 
 
 blackpawntwostep = {a7: a5, b7: b5, c7: c5, d7: d5, e7: e5, f7: f5, g7: g5, h7: h5}
 
-blackpawncapture = {a7: (None, b6), b7: (a6, c6), c7: (b6, d6), d7: (c6, e6), e7: (d6, f6), f7: (e6, g6), g7: (f6, h6), h7: (g6, None),
-                    a6: (None, b5), b6: (a5, c5), c6: (b5, d5), d6: (c5, e5), e6: (d5, f5), f6: (e5, g5), g6: (f5, h5), h6: (g5, None),
-                    a5: (None, b4), b5: (a4, c4), c5: (b4, d4), d5: (c4, e4), e5: (d4, f4), f5: (e4, g4), g5: (f4, h4), h5: (g4, None),
-                    a4: (None, b3), b4: (a3, c3), c4: (b3, d3), d4: (c3, e3), e4: (d3, f3), f4: (e3, g3), g4: (f3, h3), h4: (g3, None),
-                    a3: (None, b2), b3: (a2, c2), c3: (b2, d2), d3: (c2, e2), e3: (d2, f2), f3: (e2, g2), g3: (f2, h2), h3: (g2, None),
-                    a2: (None, b1), b2: (a1, c1), c2: (b1, d1), d2: (c1, e1), e2: (d1, f1), f2: (e1, g1), g2: (f1, h1), h2: (g1, None)}
+blackpawncapture = {a7: (None, b6), b7: (a6, c6), c7: (b6, d6), d7: (c6, e6), e7: (d6, f6), f7: (e6, g6), g7: (f6, h6),
+                    h7: (g6, None),
+                    a6: (None, b5), b6: (a5, c5), c6: (b5, d5), d6: (c5, e5), e6: (d5, f5), f6: (e5, g5), g6: (f5, h5),
+                    h6: (g5, None),
+                    a5: (None, b4), b5: (a4, c4), c5: (b4, d4), d5: (c4, e4), e5: (d4, f4), f5: (e4, g4), g5: (f4, h4),
+                    h5: (g4, None),
+                    a4: (None, b3), b4: (a3, c3), c4: (b3, d3), d4: (c3, e3), e4: (d3, f3), f4: (e3, g3), g4: (f3, h3),
+                    h4: (g3, None),
+                    a3: (None, b2), b3: (a2, c2), c3: (b2, d2), d3: (c2, e2), e3: (d2, f2), f3: (e2, g2), g3: (f2, h2),
+                    h3: (g2, None),
+                    a2: (None, b1), b2: (a1, c1), c2: (b1, d1), d2: (c1, e1), e2: (d1, f1), f2: (e1, g1), g2: (f1, h1),
+                    h2: (g1, None)}
+
+blackkingpawnrange = {a8: (None, b7), b8: (a7, c7), c8: (b7, d7), d8: (c7, e7), e8: (d7, f7), f8: (e7, g7),
+                      g8: (f7, h7), h8: (g7, None),
+                      a7: (None, b6), b7: (a6, c6), c7: (b6, d6), d7: (c6, e6), e7: (d6, f6), f7: (e6, g6),
+                      g7: (f6, h6), h7: (g6, None),
+                      a6: (None, b5), b6: (a5, c5), c6: (b5, d5), d6: (c5, e5), e6: (d5, f5), f6: (e5, g5),
+                      g6: (f5, h5), h6: (g5, None),
+                      a5: (None, b4), b5: (a4, c4), c5: (b4, d4), d5: (c4, e4), e5: (d4, f4), f5: (e4, g4),
+                      g5: (f4, h4), h5: (g4, None),
+                      a4: (None, b3), b4: (a3, c3), c4: (b3, d3), d4: (c3, e3), e4: (d3, f3), f4: (e3, g3),
+                      g4: (f3, h3), h4: (g3, None),
+                      a3: (None, b2), b3: (a2, c2), c3: (b2, d2), d3: (c2, e2), e3: (d2, f2), f3: (e2, g2),
+                      g3: (f2, h2), h3: (g2, None),
+                      a2: (None, b1), b2: (a1, c1), c2: (b1, d1), d2: (c1, e1), e2: (d1, f1), f2: (e1, g1),
+                      g2: (f1, h1), h2: (g1, None)}
 
 knightstep = {a8: (c7, b6), b8: (d7, c6, a6), c8: (e7, d6, b6, a7), d8: (f7, e6, c6, b7), e8: (g7, f6, d6, c7),
               f8: (h7, g6, e6, d7), g8: (h6, f6, e7), h8: (g6, f7), a7: (c8, c6, b5), b7: (d8, d6, c5, a5),
@@ -865,13 +907,73 @@ class ListPiece:
                 return False
         return True
 
-    def is_white_king_in_check(self):
-        # TODO funzione di controllo dello scacco sul re bianco
-        pass
+    @staticmethod
+    def is_white_king_in_check():
+        kingcell = whiteking[0]
+        try:
+            targetlist = whitekingpawnrange[kingcell]
+            for cell in targetlist:
+                if cell in blackpawns:
+                    return True
+        except KeyError:
+            pass
+        targetlist = kingstep[kingcell]
+        for cell in targetlist:
+            if cell in blackking:
+                return True
+        targetlist = knightstep[kingcell]
+        for cell in targetlist:
+            if cell in blackknights:
+                return True
+        targetsuperlist = rookstep[kingcell]
+        for targetlist in targetsuperlist:
+            for cell in targetlist:
+                if cell in whiteoccupiedcells:
+                    break
+                if cell in blackrooks or cell in blackqueen:
+                    return True
+        targetsuperlist = bishopstep[kingcell]
+        for targetlist in targetsuperlist:
+            for cell in targetlist:
+                if cell in whiteoccupiedcells:
+                    break
+                if cell in blackbishops or cell in blackqueen:
+                    return True
+        return False
 
-    def is_black_king_in_check(self):
-        # TODO funzione di controllo dello scacco sul re nero
-        pass
+    @staticmethod
+    def is_black_king_in_check():
+        kingcell = blackking[0]
+        try:
+            targetlist = blackkingpawnrange[kingcell]
+            for cell in targetlist:
+                if cell in whitepawns:
+                    return True
+        except KeyError:
+            pass
+        targetlist = kingstep[kingcell]
+        for cell in targetlist:
+            if cell in whiteking:
+                return True
+        targetlist = knightstep[kingcell]
+        for cell in targetlist:
+            if cell in whiteknights:
+                return True
+        targetsuperlist = rookstep[kingcell]
+        for targetlist in targetsuperlist:
+            for cell in targetlist:
+                if cell in blackoccupiedcells:
+                    break
+                if cell in whiterooks or cell in whitequeen:
+                    return True
+        targetsuperlist = bishopstep[kingcell]
+        for targetlist in targetsuperlist:
+            for cell in targetlist:
+                if cell in blackoccupiedcells:
+                    break
+                if cell in whitebishops or cell in whitequeen:
+                    return True
+        return False
 
     @staticmethod
     def count_doubled_pawns():
@@ -1030,11 +1132,17 @@ class ListPiece:
 
 if __name__ == '__main__':
     l = ListPiece()
+    l.add_white_king(e1)
+    l.add_white_pawn(d7)
+    l.add_black_king(e8)
     print(l)
+    print(l.is_white_king_in_check())
+    print(l.is_black_king_in_check())
 
+    """
     for move in black_generator_moves():
         print(move)
-
+    """
     """
     knightstep = {}
     deltas = ((-1, 2), (1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, 1), (-2, -1))
