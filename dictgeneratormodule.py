@@ -36,6 +36,7 @@ whiteking = []
 blackking = []
 enpassantcells = []
 whitecastlingrights = {'wk': True, 'wq': True}
+castling = {e1: False, h1: False, a1: False, e8: False, h8: False, a8: False}
 blackcastlingrights = {'bk': True, 'bq': True}
 
 whitepawnonestep = {a7: a8, b7: b8, c7: c8, d7: d8, e7: e8, f7: f8, g7: g8, h7: h8,
@@ -293,7 +294,7 @@ def white_pawn_generator(fromcell):
             raise OccupationException
     except (KeyError, OccupationException):
         onestep = None
-        print("No one step move for white pawn in ", fromcell)
+        # print("No one step move for white pawn in ", fromcell)
     try:
         if onestep is None:
             raise OccupationException
@@ -302,7 +303,7 @@ def white_pawn_generator(fromcell):
             raise OccupationException
     except (KeyError, OccupationException):
         twostep = None
-        print("No two step move for white pawn in ", fromcell)
+        # print("No two step move for white pawn in ", fromcell)
     try:
         capturesx, capturedx = whitepawncapture[fromcell]
         if capturesx not in blackoccupiedcells:
@@ -311,7 +312,7 @@ def white_pawn_generator(fromcell):
             capturedx = None
     except KeyError:
         capturesx, capturedx = (None, None)
-        print("No captures possible for white pawn from ", fromcell)
+        # print("No captures possible for white pawn from ", fromcell)
     if capturesx in enpassantcells:
         enpassantsx = capturesx
     else:
@@ -332,7 +333,7 @@ def black_pawn_generator(fromcell):
             raise OccupationException
     except (KeyError, OccupationException):
         onestep = None
-        print("No one step move for black pawn in ", fromcell)
+        # print("No one step move for black pawn in ", fromcell)
     try:
         if onestep is None:
             raise OccupationException
@@ -341,7 +342,7 @@ def black_pawn_generator(fromcell):
             raise OccupationException
     except (KeyError, OccupationException):
         twostep = None
-        print("No two step move for black pawn in ", fromcell)
+        # print("No two step move for black pawn in ", fromcell)
     try:
         capturesx, capturedx = blackpawncapture[fromcell]
         if capturesx not in whiteoccupiedcells:
@@ -350,7 +351,7 @@ def black_pawn_generator(fromcell):
             capturedx = None
     except KeyError:
         capturesx, capturedx = (None, None)
-        print("No captures possible for black pawn from ", fromcell)
+        # print("No captures possible for black pawn from ", fromcell)
     if capturesx in enpassantcells:
         enpassantsx = capturesx
     else:
@@ -381,7 +382,7 @@ def white_king_generator(fromcell):
         tocells = kingstep[fromcell]
     except KeyError:
         tocells = None
-        print("No entry for king in ", fromcell)
+        # print("No entry for king in ", fromcell)
     destination = [tocell for tocell in tocells if tocell not in whiteoccupiedcells]
     return destination
 
@@ -391,7 +392,7 @@ def black_king_generator(fromcell):
         tocells = kingstep[fromcell]
     except KeyError:
         tocells = None
-        print("No entry for king in ", fromcell)
+        # print("No entry for king in ", fromcell)
     destination = [tocell for tocell in tocells if tocell not in blackoccupiedcells]
     return destination
 
@@ -493,8 +494,6 @@ def get_white_captured_piece(tocell):
 
 
 def white_pawn_move_factory(fromcell, tocell):
-    iskingcastling = 'wk' in whitecastlingrights
-    isqueencastling = 'wq' in whitecastlingrights
     capturedpiece = get_black_captured_piece(tocell)
     if tocell in promotioncells:
         promotionto = 'wQ'
@@ -504,21 +503,15 @@ def white_pawn_move_factory(fromcell, tocell):
         isenpassant = True
     else:
         isenpassant = False
-    return mvm.Move('wP', fromcell, tocell, True, capturedpiece, iskingcastling, isqueencastling, promotionto,
-                    isenpassant, False)
+    return mvm.Move('wP', fromcell, tocell, True, capturedpiece, False, False, promotionto, isenpassant, False)
 
 
 def white_piece_move_factory(fromcell, tocell, piece):
-    iskingcastling = 'wk' in whitecastlingrights
-    isqueencastling = 'wq' in whitecastlingrights
     capturedpiece = get_black_captured_piece(tocell)
-    return mvm.Move(piece, fromcell, tocell, True, capturedpiece, iskingcastling, isqueencastling, None,
-                    False, False)
+    return mvm.Move(piece, fromcell, tocell, True, capturedpiece, False, False, None, False, False)
 
 
 def black_pawn_move_factory(fromcell, tocell):
-    iskingcastling = 'bk' in whitecastlingrights
-    isqueencastling = 'bq' in whitecastlingrights
     capturedpiece = get_white_captured_piece(tocell)
     if tocell in promotioncells:
         promotionto = 'bQ'
@@ -528,16 +521,12 @@ def black_pawn_move_factory(fromcell, tocell):
         isenpassant = True
     else:
         isenpassant = False
-    return mvm.Move('bP', fromcell, tocell, False, capturedpiece, iskingcastling, isqueencastling, promotionto,
-                    isenpassant, False)
+    return mvm.Move('bP', fromcell, tocell, False, capturedpiece, False, False, promotionto, isenpassant, False)
 
 
 def black_piece_move_factory(fromcell, tocell, piece):
-    iskingcastling = 'wk' in blackcastlingrights
-    isqueencastling = 'wq' in blackcastlingrights
     capturedpiece = get_white_captured_piece(tocell)
-    return mvm.Move(piece, fromcell, tocell, False, capturedpiece, iskingcastling, isqueencastling, None,
-                    False, False)
+    return mvm.Move(piece, fromcell, tocell, False, capturedpiece, False, False, None, False, False)
 
 
 def king_castling_move_factory(iswhiteturn):
@@ -573,10 +562,10 @@ def white_generator_moves():
         destinationlist = white_king_generator(fromcell)
         for tocell in destinationlist:
             yield white_piece_move_factory(fromcell, tocell, 'wK')
-    if whitecastlingrights['wk']:
-        yield king_castling_move_factory(True)
-    if whitecastlingrights['wq']:
-        yield queen_castling_move_factory(True)
+    if whitecastlingrights['wk'] is True and castling[e1] is True and castling[h1] is True:
+        yield king_castling_move_factory(iswhiteturn=True)
+    if whitecastlingrights['wq'] is True and castling[e1] is True and castling[a1] is True:
+        yield queen_castling_move_factory(iswhiteturn=True)
 
 
 def black_generator_moves():
@@ -599,23 +588,24 @@ def black_generator_moves():
     for fromcell in blackqueen:
         destinationlist = black_queen_generator(fromcell)
         for tocell in destinationlist:
-            yield black_piece_move_factory(fromcell, tocell, 'wQ')
+            yield black_piece_move_factory(fromcell, tocell, 'bQ')
     for fromcell in blackking:
         destinationlist = black_king_generator(fromcell)
         for tocell in destinationlist:
             yield black_piece_move_factory(fromcell, tocell, 'bK')
-    if blackcastlingrights['bk']:
-        yield king_castling_move_factory(False)
-    if blackcastlingrights['bq']:
-        yield queen_castling_move_factory(False)
+    if blackcastlingrights['bk'] is True and castling[e8] is True and castling[h8] is True:
+        yield king_castling_move_factory(iswhiteturn=False)
+    if blackcastlingrights['bq'] is True and castling[e8] is True and castling[a8] is True:
+        yield queen_castling_move_factory(iswhiteturn=False)
 
 
 class ListPiece:
     def __init__(self):
         self.moves = []
+        self.castlings = []
         global occupiedcells, whiteoccupiedcells, blackoccupiedcells, whitepawns, blackpawns, whiterooks, blackrooks
         global whiteknights, blackknights, whitebishops, blackbishops, whitequeen, blackqueen, whiteking, blackking
-        global enpassantcells, whitecastlingrights, blackcastlingrights
+        global enpassantcells, whitecastlingrights, blackcastlingrights, castling
         occupiedcells = []
         whiteoccupiedcells = []
         blackoccupiedcells = []
@@ -632,19 +622,37 @@ class ListPiece:
         whiteking = []
         blackking = []
         enpassantcells = []
-        whitecastlingrights = {'wk': True, 'wq': True}
-        blackcastlingrights = {'bk': True, 'bq': True}
+        whitecastlingrights = {'wk': False, 'wq': False}
+        blackcastlingrights = {'bk': False, 'bq': False}
+        castling = {e1: [False, False], h1: [False, False], a1: [False, False], e8: [False, False], h8: [False, False],
+                    a8: [False, False]}
 
     @staticmethod
     def set_castlingrights(whitekingside=None, whitequeenside=None, blackkingside=None, blackqueenside=None):
-        if whitekingside in (True, False):
-            whitecastlingrights['wk'] = whitekingside
-        if whitequeenside in (True, False):
-            whitecastlingrights['wq'] = whitequeenside
-        if blackkingside in (True, False):
-            blackcastlingrights['bk'] = blackkingside
-        if blackqueenside in (True, False):
-            blackcastlingrights['bq'] = blackqueenside
+        if whitekingside is True:
+            whitecastlingrights['wk'] = True
+            castling[e1] = True
+            castling[h1] = True
+        else:
+            whitecastlingrights['wk'] = False
+        if whitequeenside is True:
+            whitecastlingrights['wq'] = True
+            castling[e1] = True
+            castling[a1] = True
+        else:
+            whitecastlingrights['wq'] = False
+        if blackkingside is True:
+            blackcastlingrights['bk'] = True
+            castling[e8] = True
+            castling[h8] = True
+        else:
+            blackcastlingrights['bk'] = False
+        if blackqueenside is True:
+            blackcastlingrights['bq'] = True
+            castling[e8] = True
+            castling[a8] = True
+        else:
+            blackcastlingrights['bq'] = False
 
     @staticmethod
     def add_white_pawn(cell):
@@ -786,11 +794,13 @@ class ListPiece:
 
     def applymove(self, move):
         self.moves.append(move)
+        global castling
+        self.castlings.append(castling)
         activeoccupiedlist, enemyoccupiedlist = self._get_active_occupied_list(move.iswhiteturn)
         activepiecelist = self._get_list_by_piece(move.piece)
         capturedpiecelist = self._get_list_by_piece(move.capturedpiece)
         promotionlist = self._get_list_by_piece(move.promotionto)
-        if activepiecelist is not None:
+        if move.piece is not None:
             occupiedcells.remove(move.fromcell)
             activeoccupiedlist.remove(move.fromcell)
             activepiecelist.remove(move.fromcell)
@@ -838,6 +848,20 @@ class ListPiece:
                     blackrooks.remove(a8)
                     blackrooks.append(d8)
                     blackcastlingrights['bq'] = False
+        if move.piece == 'wK':
+            castling[e1] = False
+        if move.piece == 'wR':
+            if move.fromcell == h1:
+                castling[h1] = False
+            elif move.fromcell == a1:
+                castling[a1] = False
+        if move.piece == 'bK':
+            castling[e8] = False
+        if move.piece == 'bR':
+            if move.fromcell == h8:
+                castling[h8] = False
+            elif move.fromcell == a8:
+                castling[a8] = False
 
     def undomove(self, move):
         activeoccupiedlist, enemyoccupiedlist = self._get_active_occupied_list(move.iswhiteturn)
@@ -845,25 +869,21 @@ class ListPiece:
         capturedpiecelist = self._get_list_by_piece(move.capturedpiece)
         promotionlist = self._get_list_by_piece(move.promotionto)
         if activepiecelist is not None:
+            occupiedcells.remove(move.tocell)
+            activeoccupiedlist.remove(move.tocell)
             if promotionlist is not None:
-                activeoccupiedlist.remove(move.tocell)
-                occupiedcells.remove(move.tocell)
                 promotionlist.remove(move.tocell)
+            else:
+                activepiecelist.remove(move.tocell)
             if capturedpiecelist is not None:
                 if move.isenpassant:
-                    if move.iswhiteturn:
-                        tocell = move.tocell.sumcoordinate(0, -1)
-                    else:
-                        tocell = move.tocell.sumcoordinate(0, +1)
+                    sumcoor = {True: (0, -1), False: (0, 1)}
+                    tocell = move.tocell.sumcoordinate(sumcoor[move.iswhiteturn])
                 else:
                     tocell = move.tocell
                 occupiedcells.append(tocell)
                 enemyoccupiedlist.append(tocell)
                 capturedpiecelist.append(tocell)
-            if promotionlist is None and capturedpiecelist is None:
-                occupiedcells.remove(move.tocell)
-                activeoccupiedlist.remove(move.tocell)
-                activepiecelist.remove(move.tocell)
             occupiedcells.append(move.fromcell)
             activeoccupiedlist.append(move.fromcell)
             activepiecelist.append(move.fromcell)
@@ -894,6 +914,8 @@ class ListPiece:
                     blackrooks.remove(d8)
                     blackrooks.append(a8)
                     blackcastlingrights['bq'] = True
+        global castling
+        castling = self.castlings.pop(-1)
         self.moves.remove(move)
 
     @staticmethod
@@ -1089,6 +1111,7 @@ class ListPiece:
             yield 'bK'
 
     def __str__(self):
+
         # solo per debug
         print("occupiedcells: ", occupiedcells)
         print("whiteoccupiedcells: ", whiteoccupiedcells)

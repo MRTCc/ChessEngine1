@@ -94,10 +94,10 @@ class EvaluationFuncLazy(EvaluationFunc):
         self.evaluation = 0
         whitevalue = 0
         blackvalue = 0
-        for piece in self.listpiece.whitepieces():
+        for piece in self.listpiece.get_white_pieces():
             value = self._set_white_evaluation_parameters(piece)
             whitevalue += value
-        for piece in self.listpiece.blackpieces():
+        for piece in self.listpiece.get_black_pieces():
             value = self._set_black_evaluation_parameters(piece)
             blackvalue += value
         self.evaluation = whitevalue - blackvalue

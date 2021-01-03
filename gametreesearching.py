@@ -35,7 +35,7 @@ checkmatevalue = 10000
 hashingmethod = 'zobrist'
 isactivetraspositiontable = False     # default True
 algorithm = 'minmax'                    # default alphabeta
-maxply = 2                    # default 5
+maxply = 4                  # default 5
 transpositiontable = None
 evalfunctype = 1
 hashgenerator = None
@@ -260,11 +260,8 @@ class FenStrParser:
         iswhiteturnstart = self._get_start_color(tokens[1])
         movesetter = UciMoveSetter(self.listpiece, movestr, iswhiteturnstart)
         movesetter()
-        iswhiteturnactive = self._get_active_color(iswhiteturnstart, len(movestr))
+        self.enginecolor = self._get_active_color(iswhiteturnstart, len(movestr))
         gameposition = self._parse_game_position()
-
-        print(self.listpiece)
-
         return gameposition
 
 
@@ -292,6 +289,9 @@ class GamePosition:
     def undomove(self, move):
         self.listpiece.undomove(move)
 
+    def removemove(self, move):
+        self.moves.remove(move)
+
     def imincheckmate(self):
         if len(self.moves) < 1 and self.ischeckfunc():
             return True
@@ -301,14 +301,14 @@ class GamePosition:
     def isstalemate(self):
         if len(self.moves) < 1 and not self.ischeckfunc():
             return True
-        if self.listpiece.isstalemate():
+        if self.listpiece.is_stalemate():
             return True
         return False
 
     def calcbestmove(self, ply):
         raise Exception("GamePosition --> calcbestmove : not implemented!!!")
 
-    def _outputmoves(self):
+    def outputmoves(self):
         msg = ""
         for move in self.listpiece.moves:
             msg += move.short__str__() + " "
@@ -358,13 +358,6 @@ class WhiteGamePosition(GamePosition):
             self.moves.append(move)
         generationtime += time.clock() - starttime
 
-    def outputmoves(self):
-        msg = ""
-        for move in self.listpiece.moves:
-            msg += move.short__str__() + " "
-        msg += str(self.value)
-        return msg
-
     def __str__(self):
         msg = 'Active color: white\n'
         msg += str(self.listpiece)
@@ -388,13 +381,6 @@ class BlackGamePosition(GamePosition):
         for move in self.movegeneratorfunc():
             self.moves.append(move)
         generationtime += time.clock() - starttime
-
-    def outputmoves(self):
-        msg = ""
-        for move in self.listpiece.moves:
-            msg += move.short__str__() + " "
-        msg += str(self.value)
-        return msg
 
     def __str__(self):
         msg = 'Active color: black\n'
@@ -429,6 +415,23 @@ class MinimaxGamePosition:
             msg = position.outputmoves()
             testfile.write(msg + "\n")
             return
+        illegalmoves = []
+        for move in position.moves:
+            position.applymove(move)
+            if self.listpiece.is_white_king_in_check():
+                position.undomove(move)
+                illegalmoves.append(move)
+                continue
+            child = position.enemy_game_position_func(position.listpiece, position)
+            try:
+                self.minimaxformin(child, depthleft - 1)
+            except StopSearchSystemExit:
+                position.undomove(move)
+                raise StopSearchSystemExit
+            position.children.append(child)
+            position.undomove(move)
+        for move in illegalmoves:
+            position.removemove(move)
         if position.imincheckmate():
             position.value = position.imincheckmatevalue
             msg = position.outputmoves()
@@ -439,18 +442,6 @@ class MinimaxGamePosition:
             msg = position.outputmoves()
             testfile.write(msg + "****** DRAW - GAME ENDED ******\n")
             return
-        for move in position.moves:
-            position.applymove(move)
-            # qui si controlla se la mossa non lascia il proprio re in presa
-            # se il proprio re viene lasciato in presa, allora la mossa va annullata ed eliminata
-            child = position.enemy_game_position_func(position.listpiece, position)
-            try:
-                self.minimaxformin(child, depthleft - 1)
-            except StopSearchSystemExit:
-                position.undomove(move)
-                raise StopSearchSystemExit
-            position.children.append(child)
-            position.undomove(move)
         maxchild = None
         for child in position.children:
             if maxchild is None:
@@ -472,6 +463,23 @@ class MinimaxGamePosition:
             msg = position.outputmoves()
             testfile.write(msg + "\n")
             return
+        illegalmoves = []
+        for move in position.moves:
+            position.applymove(move)
+            if self.listpiece.is_black_king_in_check():
+                position.undomove(move)
+                illegalmoves.append(move)
+                continue
+            child = position.enemy_game_position_func(position.listpiece, position)
+            try:
+                self.minimaxformax(child, depthleft - 1)
+            except StopSearchSystemExit:
+                position.undomove(move)
+                raise StopSearchSystemExit
+            position.children.append(child)
+            position.undomove(move)
+        for move in illegalmoves:
+            position.removemove(move)
         if position.imincheckmate():
             position.value = position.imincheckmatevalue
             msg = position.outputmoves()
@@ -482,18 +490,6 @@ class MinimaxGamePosition:
             msg = position.outputmoves()
             testfile.write(msg + "****** DRAW - GAME ENDED ******\n")
             return
-        for move in position.moves:
-            position.applymove(move)
-            # qui si controlla se la mossa non lascia il proprio re in presa
-            # se il proprio re viene lasciato in presa, allora la mossa va annullata ed eliminata
-            child = position.enemy_game_position_func(position.listpiece, position)
-            try:
-                self.minimaxformax(child, depthleft - 1)
-            except StopSearchSystemExit:
-                position.undomove(move)
-                raise StopSearchSystemExit
-            position.children.append(child)
-            position.undomove(move)
         minchild = None
         for child in position.children:
             if minchild is None:
