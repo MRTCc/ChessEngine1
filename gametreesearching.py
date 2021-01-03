@@ -353,10 +353,10 @@ class WhiteGamePosition(GamePosition):
 
     def generateallmoves(self):
         global generationtime
-        starttime = time.clock()
+        starttime = time.perf_counter()
         for move in self.movegeneratorfunc():
             self.moves.append(move)
-        generationtime += time.clock() - starttime
+        generationtime += time.perf_counter() - starttime
 
     def __str__(self):
         msg = 'Active color: white\n'
@@ -377,10 +377,10 @@ class BlackGamePosition(GamePosition):
 
     def generateallmoves(self):
         global generationtime
-        starttime = time.clock()
+        starttime = time.perf_counter()
         for move in self.movegeneratorfunc():
             self.moves.append(move)
-        generationtime += time.clock() - starttime
+        generationtime += time.perf_counter() - starttime
 
     def __str__(self):
         msg = 'Active color: black\n'
@@ -506,7 +506,7 @@ class MinimaxGamePosition:
 
     def calcbestmove(self, ply):
         global totaltime, evaluationtime
-        starttime = time.clock()
+        starttime = time.perf_counter()
         if self.rootcolor:
             self.minimaxformax(self.position, ply)
         else:
@@ -514,7 +514,7 @@ class MinimaxGamePosition:
         self.value = self.position.value
         for index in range(0, len(self.position.children)):
             if self.position.children[index].value == self.value:
-                totaltime = time.clock() - starttime
+                totaltime = time.perf_counter() - starttime
                 evaluationtime = evm.evaluationtime
                 return self.position.moves[index]
 
@@ -645,7 +645,7 @@ class AlphabetaGamePosition:
 
     def calcbestmove(self, ply):
         global totaltime, evaluationtime
-        starttime = time.clock()
+        starttime = time.perf_counter()
         if self.rootcolor:
             self.alphabetamax(self.position, -800, +800, ply)
         else:
@@ -653,7 +653,7 @@ class AlphabetaGamePosition:
         self.value = self.position.value
         for index in range(0, len(self.position.children)):
             if self.position.children[index].value == self.value:
-                totaltime = time.clock() - starttime
+                totaltime = time.perf_counter() - starttime
                 evaluationtime = evm.evaluationtime
                 return self.position.moves[index]
 
@@ -784,7 +784,7 @@ class IterativeDeepeningGamePosition:
 
     def calcbestmove(self, maxply):
         global totaltime, evaluationtime
-        starttime = time.clock()
+        starttime = time.perf_counter()
         for ply in range(1, maxply + 1):
             self.position.children = []
             if self.rootcolor:
@@ -795,7 +795,7 @@ class IterativeDeepeningGamePosition:
             for index in range(0, len(self.position.children)):
                 self.position.moves[index].value = self.position.children[index].value
             self.position.moves.sort(key=self._moveorderingkey, reverse=True)
-        totaltime = time.clock() - starttime
+        totaltime = time.perf_counter() - starttime
         evaluationtime = evm.evaluationtime
         return self.position.moves[0]
 
@@ -809,6 +809,9 @@ class IterativeDeepeningGamePosition:
 
 
 if __name__ == '__main__':
-    f = FenStrParser(algorithm, transpositiontable, hashgenerator)
-    f("1k6/8/8/8/8/3R4/2Q5/1K6 w - - 0 0".split(), 'd3d7 b8a8 c2c3 a8b8'.split())
+    initnewgame()
+    initgameposition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 moves".split())
+    zobrist = hsa.Zobrist()
+    key = zobrist.gethashkey(rootposition.listpiece, True)
+    print(key)
 

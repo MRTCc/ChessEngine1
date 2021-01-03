@@ -1110,28 +1110,40 @@ class ListPiece:
         for cell in blackking:
             yield 'bK', cell
 
+    @staticmethod
+    def get_white_castling_rights():
+        return whitecastlingrights
+
+    @staticmethod
+    def get_black_castling_rights():
+        return blackcastlingrights
+
+    @staticmethod
+    def get_enpassant_cells():
+        return enpassantcells
+
     def __str__(self):
 
         # solo per debug
-        print("occupiedcells: ", occupiedcells)
-        print("whiteoccupiedcells: ", whiteoccupiedcells)
-        print("blackoccupiedcells: ", blackoccupiedcells)
-        print("whitepawns: ", whitepawns)
-        print("blackpawns: ", blackpawns)
-        print("promotioncells: ", promotioncells)
-        print("whiterooks: ", whiterooks)
-        print("blackrooks: ", blackrooks)
-        print("whiteknights: ", whiteknights)
-        print("blackknights: ", blackknights)
-        print("whitebishops: ", whitebishops)
-        print("blackbishops: ", blackbishops)
-        print("whitequeen: ", whitequeen)
-        print("blackqueen: ", blackqueen)
-        print("whiteking: ", whiteking)
-        print("blackking: ", blackking)
-        print("enpassantcells: ", enpassantcells)
-        print("whitecastlingrights: ", whitecastlingrights)
-        print("blackcastlingrights: ", blackcastlingrights)
+        # print("occupiedcells: ", occupiedcells)
+        # print("whiteoccupiedcells: ", whiteoccupiedcells)
+        # print("blackoccupiedcells: ", blackoccupiedcells)
+        # print("whitepawns: ", whitepawns)
+        # print("blackpawns: ", blackpawns)
+        # print("promotioncells: ", promotioncells)
+        # print("whiterooks: ", whiterooks)
+        # print("blackrooks: ", blackrooks)
+        # print("whiteknights: ", whiteknights)
+        # print("blackknights: ", blackknights)
+        # print("whitebishops: ", whitebishops)
+        # print("blackbishops: ", blackbishops)
+        # print("whitequeen: ", whitequeen)
+        # print("blackqueen: ", blackqueen)
+        # print("whiteking: ", whiteking)
+        # print("blackking: ", blackking)
+        # print("enpassantcells: ", enpassantcells)
+        # print("whitecastlingrights: ", whitecastlingrights)
+        # print("blackcastlingrights: ", blackcastlingrights)
 
         # bisogna costruire la variabile board
         board = {}
