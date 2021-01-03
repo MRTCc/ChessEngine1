@@ -1082,33 +1082,33 @@ class ListPiece:
 
     @staticmethod
     def get_white_pieces():
-        for i in range(0, len(whitepawns)):
-            yield 'wP'
-        for i in range(0, len(whiterooks)):
-            yield 'wR'
-        for i in range(0, len(whiteknights)):
-            yield 'wN'
-        for i in range(0, len(whitebishops)):
-            yield 'wB'
-        for i in range(0, len(whitequeen)):
-            yield 'wQ'
-        for i in range(0, len(whiteking)):
-            yield 'wK'
+        for cell in whitepawns:
+            yield 'wP', cell
+        for cell in whiterooks:
+            yield 'wR', cell
+        for cell in whiteknights:
+            yield 'wR', cell
+        for cell in whitebishops:
+            yield 'wB', cell
+        for cell in whitequeen:
+            yield 'wQ', cell
+        for cell in whiteking:
+            yield 'wK', cell
 
     @staticmethod
     def get_black_pieces():
-        for i in range(0, len(blackpawns)):
-            yield 'bP'
-        for i in range(0, len(blackrooks)):
-            yield 'bR'
-        for i in range(0, len(blackknights)):
-            yield 'bN'
-        for i in range(0, len(blackbishops)):
-            yield 'bB'
-        for i in range(0, len(blackqueen)):
-            yield 'bQ'
-        for i in range(0, len(blackking)):
-            yield 'bK'
+        for cell in blackpawns:
+            yield 'bP', cell
+        for cell in blackrooks:
+            yield 'bR', cell
+        for cell in blackknights:
+            yield 'bR', cell
+        for cell in blackbishops:
+            yield 'bB', cell
+        for cell in blackqueen:
+            yield 'bQ', cell
+        for cell in blackking:
+            yield 'bK', cell
 
     def __str__(self):
 
