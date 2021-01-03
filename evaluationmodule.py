@@ -213,17 +213,17 @@ class EvaluationFuncTable(EvaluationFunc):
     @staticmethod
     def _set_white_evaluation_parameters(piece, cell=None):
         if piece == 'wP':
-            piecevalue = pawnvalue + pawnvalue * whitepawntable[cell]
+            piecevalue = pawnvalue + pawnvalue * (whitepawntable[cell] * 0.01)
         elif piece == 'wR':
-            piecevalue = rookvalue + rookvalue * whiterooktable[cell]
+            piecevalue = rookvalue + rookvalue * (whiterooktable[cell] * 0.01)
         elif piece == 'wN':
-            piecevalue = knightvalue + knightvalue * whiteknighttable[cell]
+            piecevalue = knightvalue + knightvalue * (whiteknighttable[cell] * 0.01)
         elif piece == 'wB':
-            piecevalue = bishopvalue + bishopvalue * whitebishoptable[cell]
+            piecevalue = bishopvalue + bishopvalue * (whitebishoptable[cell] * 0.01)
         elif piece == 'wQ':
-            piecevalue = queenvalue + queenvalue * whitequeentable[cell]
+            piecevalue = queenvalue + queenvalue * (whitequeentable[cell] * 0.01)
         elif piece == 'wK':
-            piecevalue = kingvalue + kingvalue * whitekingmiddlegametable[cell]
+            piecevalue = kingvalue + kingvalue * (whitekingmiddlegametable[cell] * 0.01)
         else:
             raise ValueError("Not a valid piece!!!")
         return piecevalue
@@ -231,17 +231,17 @@ class EvaluationFuncTable(EvaluationFunc):
     @staticmethod
     def _set_black_evaluation_parameters(piece, cell=None):
         if piece == 'bP':
-            piecevalue = pawnvalue + pawnvalue * blackpawntable[cell]
+            piecevalue = pawnvalue + pawnvalue * (blackpawntable[cell] * 0.01)
         elif piece == 'bR':
-            piecevalue = rookvalue + rookvalue * blackrooktable[cell]
+            piecevalue = rookvalue + rookvalue * (blackrooktable[cell] * 0.01)
         elif piece == 'bN':
-            piecevalue = knightvalue + knightvalue * blackknighttable[cell]
+            piecevalue = knightvalue + knightvalue * (blackknighttable[cell] * 0.01)
         elif piece == 'bB':
-            piecevalue = bishopvalue + bishopvalue * blackbishoptable[cell]
+            piecevalue = bishopvalue + bishopvalue * (blackbishoptable[cell] * 0.01)
         elif piece == 'bQ':
-            piecevalue = queenvalue + queenvalue * blackqueentable[cell]
+            piecevalue = queenvalue + queenvalue * (blackqueentable[cell] * 0.01)
         elif piece == 'bK':
-            piecevalue = kingvalue + kingvalue * blackkingmiddlegametable[cell]
+            piecevalue = kingvalue + kingvalue * (blackkingmiddlegametable[cell] * 0.01)
         else:
             raise ValueError("Not a valid piece!!!")
         return piecevalue
