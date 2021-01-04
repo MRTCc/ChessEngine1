@@ -1,5 +1,4 @@
 import dictgeneratormodule as gen
-import movemodule as mvm
 import algebraicnotationmodule as alg
 import random
 
@@ -94,23 +93,26 @@ class Zobrist(HashingAlgorithm):
             color = 1
             capturepiececolor = 0
         if move.piece is not None:
-            piece = move.capturedpiece
-            if piece:
-                cellnumber = self._getcellnumber(piece)
-                piecetype = self._getpiecetype(piece)
-                newzobristkey ^= self.zarray[capturepiececolor][piecetype][cellnumber]
-            piece = move.promotionto
-            if piece:
-                cellnumber = self._getcellnumber(piece)
-                piecetype = self._getpiecetype(piece)
-                newzobristkey ^= self.zarray[color][piecetype][cellnumber]
-            piece = move.piece
-            cellnumber = alg.celllist.index(move.fromcell)
-            piecetype = self._getpiecetype(piece)
+            piecetype = self._getpiecetype(move.piece)
+            cellnumber = self._getcellnumber(move.fromcell)
             newzobristkey ^= self.zarray[color][piecetype][cellnumber]
-            if move.promotionto is None:
-                cellnumber = self._getcellnumber(piece)
-                newzobristkey ^= self.zarray[color][piecetype][cellnumber]
+            if move.capturedpiece is not None:
+                if move.tocell in gen.enpassantcells:
+                    if move.iswhiteturn:
+                        hitcell = move.tocell.sumcoordinate(0, -1)
+                    else:
+                        hitcell = move.tocell.sumcoordinate(0, +1)
+                else:
+                    hitcell = move.tocell
+                piecetype = self._getpiecetype(move.capturedpiece)
+                cellnumber = self._getcellnumber(hitcell)
+                newzobristkey ^= self.zarray[capturepiececolor][piecetype][cellnumber]
+            if move.promotionto is not None:
+                piecetype = self._getpiecetype(move.promotionto)
+            else:
+                piecetype = self._getpiecetype(move.piece)
+            cellnumber = self._getcellnumber(move.fromcell)
+            newzobristkey ^= self.zarray[color][piecetype][cellnumber]
         else:
 
             if move.iswhiteturn:

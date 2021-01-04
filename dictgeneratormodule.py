@@ -1519,29 +1519,27 @@ class ListPiece:
         return enpassantcells
 
     def __str__(self):
-
         # solo per debug
-        print("occupiedcells: ", occupiedcells)
-        print("whiteoccupiedcells: ", whiteoccupiedcells)
-        print("blackoccupiedcells: ", blackoccupiedcells)
-        print("whitepawns: ", whitepawns)
-        print("blackpawns: ", blackpawns)
-        print("promotioncells: ", promotioncells)
-        print("whiterooks: ", whiterooks)
-        print("blackrooks: ", blackrooks)
-        print("whiteknights: ", whiteknights)
-        print("blackknights: ", blackknights)
-        print("whitebishops: ", whitebishops)
-        print("blackbishops: ", blackbishops)
-        print("whitequeen: ", whitequeen)
-        print("blackqueen: ", blackqueen)
-        print("whiteking: ", whiteking)
-        print("blackking: ", blackking)
-        print("enpassantcells: ", enpassantcells)
-        print("whitecastlingrights: ", whitecastlingrights)
-        print("blackcastlingrights: ", blackcastlingrights)
+        # print("occupiedcells: ", occupiedcells)
+        # print("whiteoccupiedcells: ", whiteoccupiedcells)
+        # print("blackoccupiedcells: ", blackoccupiedcells)
+        # print("whitepawns: ", whitepawns)
+        # print("blackpawns: ", blackpawns)
+        # print("promotioncells: ", promotioncells)
+        # print("whiterooks: ", whiterooks)
+        # print("blackrooks: ", blackrooks)
+        # print("whiteknights: ", whiteknights)
+        # print("blackknights: ", blackknights)
+        # print("whitebishops: ", whitebishops)
+        # print("blackbishops: ", blackbishops)
+        # print("whitequeen: ", whitequeen)
+        # print("blackqueen: ", blackqueen)
+        # print("whiteking: ", whiteking)
+        # print("blackking: ", blackking)
+        # print("enpassantcells: ", enpassantcells)
+        # print("whitecastlingrights: ", whitecastlingrights)
+        # print("blackcastlingrights: ", blackcastlingrights)
 
-        # bisogna costruire la variabile board
         board = {}
         for cell in alg.celllist:
             if cell in whitepawns:
@@ -1596,13 +1594,125 @@ class ListPieceHashValue(ListPiece):
         self.originhashvalue = self.hashgenerator.gethashkey(self, activecolor)
 
     def gethashkey(self):
-        if len(self.moves) < 1:
+        if len(self.moves) <= 1:
             return self.originhashvalue
         else:
             return self.hashvalues[-1]
 
     def applymove(self, move):
-        super().applymove(move)
+        self.moves.append(move)
+        global castling, enpassantcells
+        self.castlingrights.append([whitecastlingrights, blackcastlingrights])
+        self.castlings.append(castling)
+        self.enpassants.append(enpassantcells)
+        enpassantcells = []
+        activeoccupiedlist, enemyoccupiedlist = self._get_active_occupied_list(move.iswhiteturn)
+        activepiecelist = self._get_list_by_piece(move.piece)
+        capturedpiecelist = self._get_list_by_piece(move.capturedpiece)
+        promotionlist = self._get_list_by_piece(move.promotionto)
+        if move.piece is not None:
+            occupiedcells.remove(move.fromcell)
+            activeoccupiedlist.remove(move.fromcell)
+            activepiecelist.remove(move.fromcell)
+            if capturedpiecelist is not None:
+                if move.tocell in enpassantcells:
+                    if move.iswhiteturn:
+                        hitcell = move.tocell.sumcoordinate(0, -1)
+                    else:
+                        hitcell = move.tocell.sumcoordinate(0, +1)
+                else:
+                    hitcell = move.tocell
+                occupiedcells.remove(hitcell)
+                enemyoccupiedlist.remove(hitcell)
+                capturedpiecelist.remove(hitcell)
+            if promotionlist is not None:
+                promotionlist.append(move.tocell)
+            else:
+                activepiecelist.append(move.tocell)
+            activeoccupiedlist.append(move.tocell)
+            occupiedcells.append(move.tocell)
+            if move.piece is 'wP' and move.fromcell.absfiledifference(move.tocell):
+                enpassantcells.append(move.tocell.sumcoordinate(0, -1))
+            if move.piece is 'bP' and move.fromcell.absfiledifference(move.tocell):
+                enpassantcells.append(move.tocell.sumcoordinate(0, 1))
+            if move.iswhiteturn:
+                if move.piece == 'wK':
+                    castling['wk'] = [False, False]
+                    castling['wq'] = [False, False]
+                if move.piece == 'wR':
+                    if move.fromcell == h1:
+                        castling['wk'] = [False, False]
+                    elif move.fromcell == a1:
+                        castling['wq'] = [False, False]
+            else:
+                if move.piece == 'bK':
+                    castling['bk'] = [False, False]
+                    castling['bq'] = [False, False]
+                if move.piece == 'bR':
+                    if move.fromcell == h8:
+                        castling['bk'] = [False, False]
+                    elif move.fromcell == a8:
+                        castling['bq'] = [False, False]
+        else:
+            if move.iswhiteturn:
+                if move.iskingcastling:
+                    occupiedcells.remove(e1)
+                    whiteoccupiedcells.remove(e1)
+                    whiteking.remove(e1)
+                    occupiedcells.append(g1)
+                    whiteoccupiedcells.append(g1)
+                    whiteking.append(g1)
+                    occupiedcells.remove(h1)
+                    whiteoccupiedcells.remove(h1)
+                    whiterooks.remove(h1)
+                    occupiedcells.append(f1)
+                    whiteoccupiedcells.append(f1)
+                    whiterooks.append(f1)
+                    castling['wk'] = [False, False]
+                if move.isqueencastling:
+                    occupiedcells.remove(e1)
+                    whiteoccupiedcells.remove(e1)
+                    whiteking.remove(e1)
+                    occupiedcells.append(c1)
+                    whiteoccupiedcells.append(c1)
+                    whiteking.append(c1)
+                    occupiedcells.remove(a1)
+                    whiteoccupiedcells.remove(a1)
+                    whiterooks.remove(a1)
+                    occupiedcells.append(d1)
+                    whiteoccupiedcells.append(d1)
+                    whiterooks.append(d1)
+                    castling['wq'] = [False, False]
+            else:
+                if move.iskingcastling:
+                    occupiedcells.remove(e8)
+                    blackoccupiedcells.remove(e8)
+                    blackking.remove(e8)
+                    occupiedcells.append(g8)
+                    blackoccupiedcells.append(g8)
+                    blackking.append(g8)
+                    occupiedcells.remove(h8)
+                    blackoccupiedcells.remove(h8)
+                    blackrooks.remove(h8)
+                    occupiedcells.append(f8)
+                    blackoccupiedcells.append(f8)
+                    blackrooks.append(f8)
+                    castling['bk'] = [False, False]
+                if move.isqueencastling:
+                    occupiedcells.remove(e8)
+                    blackoccupiedcells.remove(e8)
+                    blackking.remove(e8)
+                    occupiedcells.append(c8)
+                    blackoccupiedcells.append(c8)
+                    blackking.append(c8)
+                    occupiedcells.remove(a8)
+                    blackoccupiedcells.remove(a8)
+                    blackrooks.remove(a8)
+                    occupiedcells.append(d8)
+                    blackoccupiedcells.append(d8)
+                    blackrooks.append(d8)
+                    castling['bq'] = [False, False]
+        self.update_castling_rights()
         self.changedcastling = [False, False, False, False]
         self.changedenpassant = [False, False, False, False, False, False, False, False]
         lastwhitecastlingright, lastblackcastlingright = self.castlingrights[-1]
@@ -1616,13 +1726,14 @@ class ListPieceHashValue(ListPiece):
             self.changedcastling[3] = True
         lastenpassantcells = self.enpassants[-1]
         tmp = []
-        for cell in lastenpassantcells:
-            if cell not in enpassantcells:
+        for cell in enpassantcells:
+            if cell not in lastenpassantcells:
                 tmp.append(cell)
         for cell in tmp:
-            index = cell.getrankvalue()
+            index = cell.getrankvalue() - 1
             self.changedenpassant[index] = True
-        newhashvalue = self.hashgenerator.updatehashkey(self.gethashkey(), self, not move.iswhiteturn)
+        activecolor = not self.moves[-1].iswhiteturn
+        newhashvalue = self.hashgenerator.updatehashkey(self.gethashkey(), self, activecolor)
         self.hashvalues.append(newhashvalue)
 
     def undomove(self, move):
