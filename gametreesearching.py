@@ -49,9 +49,7 @@ def initnewgame():
     evm.functype = evalfunctype
     if isactivetraspositiontable:
         if hashingmethod == 'zobrist':
-            # TODO mettere a posto HASHINGALGORITHMS
-            # hashgenerator = hsa.Zobrist()
-            pass
+            hashgenerator = hsa.Zobrist()
         transpositiontable = trsp.transpositiontablefactory(algorithm)
     nposition = 0
     perfposition = 0
@@ -230,6 +228,7 @@ class FenStrParser:
         if self.algorithm == 'minmax':
             gameposition = MinimaxGamePosition(self.listpiece, self.enginecolor)
         elif self.algorithm == 'alphabeta' and self.transpositiontable:
+            self.listpiece.set_origin_hash_value(self.enginecolor)
             # gameposition = AlphabetaGamePositionTable(self.transpositiontable, self.listpiece, self.enginecolor)
             pass
         elif self.algorithm == 'alphabeta' and self.transpositiontable is None:
@@ -239,6 +238,7 @@ class FenStrParser:
             gameposition = IterativeDeepeningGamePosition(self.listpiece, self.enginecolor)
             pass
         elif self.algorithm == 'iterdeep' and self.transpositiontable is not None:
+            # self.listpiece.set_origin_hash_value(self.enginecolor)
             # gameposition = IterativeDeepeningGamePositionTable(self.transpositiontable, self.listpiece, self.enginecolor)
             pass
         elif self.algorithm == 'perf':
