@@ -36,7 +36,8 @@ whiteking = []
 blackking = []
 enpassantcells = []
 whitecastlingrights = {'wk': True, 'wq': True}
-castling = {e1: False, h1: False, a1: False, e8: False, h8: False, a8: False}
+castling = {'wk': [True, True], 'wq': [True, True], 'bk': [True, True],
+            'bq': [True, True]}
 blackcastlingrights = {'bk': True, 'bq': True}
 
 
@@ -563,9 +564,9 @@ def white_generator_moves():
         destinationlist = white_king_generator(fromcell)
         for tocell in destinationlist:
             yield white_piece_move_factory(fromcell, tocell, 'wK')
-    if whitecastlingrights['wk'] is True and castling[e1] is True and castling[h1] is True:
+    if whitecastlingrights['wk']:
         yield king_castling_move_factory(iswhiteturn=True)
-    if whitecastlingrights['wq'] is True and castling[e1] is True and castling[a1] is True:
+    if whitecastlingrights['wq']:
         yield queen_castling_move_factory(iswhiteturn=True)
 
 
@@ -594,9 +595,9 @@ def black_generator_moves():
         destinationlist = black_king_generator(fromcell)
         for tocell in destinationlist:
             yield black_piece_move_factory(fromcell, tocell, 'bK')
-    if blackcastlingrights['bk'] is True and castling[e8] is True and castling[h8] is True:
+    if blackcastlingrights['bk']:
         yield king_castling_move_factory(iswhiteturn=False)
-    if blackcastlingrights['bq'] is True and castling[e8] is True and castling[a8] is True:
+    if blackcastlingrights['bq']:
         yield queen_castling_move_factory(iswhiteturn=False)
 
 
@@ -633,35 +634,337 @@ class ListPiece:
         enpassantcells = []
         whitecastlingrights = {'wk': False, 'wq': False}
         blackcastlingrights = {'bk': False, 'bq': False}
-        castling = {e1: [False, False], h1: [False, False], a1: [False, False], e8: [False, False], h8: [False, False],
-                    a8: [False, False]}
+        castling = {'wk': [True, True], 'wq': [True, True], 'bk': [True, True],
+                    'bq': [True, True]}
 
     @staticmethod
     def set_castlingrights(whitekingside=None, whitequeenside=None, blackkingside=None, blackqueenside=None):
         if whitekingside is True:
             whitecastlingrights['wk'] = True
-            castling[e1] = True
-            castling[h1] = True
         else:
             whitecastlingrights['wk'] = False
+            castling['wk'] = [False, False, False, False]
         if whitequeenside is True:
             whitecastlingrights['wq'] = True
-            castling[e1] = True
-            castling[a1] = True
         else:
             whitecastlingrights['wq'] = False
+            castling['wq'] = [False, False, False, False, False]
         if blackkingside is True:
             blackcastlingrights['bk'] = True
-            castling[e8] = True
-            castling[h8] = True
         else:
             blackcastlingrights['bk'] = False
+            castling['bk'] = [False, False, False, False]
         if blackqueenside is True:
             blackcastlingrights['bq'] = True
-            castling[e8] = True
-            castling[a8] = True
         else:
             blackcastlingrights['bq'] = False
+            castling['bq'] = [False, False, False, False, False]
+
+    def update_white_king_castling_rights(self):
+        if castling['wk'][0] is False or castling['wk'][1] is False:
+            whitecastlingrights['wk'] = False
+            castling['wk'] = [False, False]
+            return
+        if h1 not in whiterooks:
+            whitecastlingrights['wk'] = False
+            castling['wk'] = [False, False]
+            return
+        if self.is_white_king_in_check():
+            whitecastlingrights['wk'] = False
+            return
+        if f1 in occupiedcells:
+            whitecastlingrights['wk'] = False
+            return
+        global whiteking
+        whiteking.pop(-1)
+        whiteking.append(f1)
+        occupiedcells.remove(e1)
+        occupiedcells.append(f1)
+        whiteoccupiedcells.remove(e1)
+        whiteoccupiedcells.append(f1)
+        if self.is_white_king_in_check():
+            whitecastlingrights['wk'] = False
+            whiteking.pop(-1)
+            whiteking.append(e1)
+            occupiedcells.remove(f1)
+            occupiedcells.append(e1)
+            whiteoccupiedcells.remove(f1)
+            whiteoccupiedcells.append(e1)
+            return
+        if g1 in occupiedcells:
+            whitecastlingrights['wk'] = False
+            whiteking.pop(-1)
+            whiteking.append(e1)
+            occupiedcells.remove(f1)
+            occupiedcells.append(e1)
+            whiteoccupiedcells.remove(f1)
+            whiteoccupiedcells.append(e1)
+            return
+        whiteking.pop(-1)
+        whiteking.append(g1)
+        occupiedcells.remove(f1)
+        occupiedcells.append(g1)
+        whiteoccupiedcells.remove(f1)
+        whiteoccupiedcells.append(g1)
+        if self.is_white_king_in_check():
+            whitecastlingrights['wk'] = False
+            whiteking.pop(-1)
+            whiteking.append(e1)
+            occupiedcells.remove(g1)
+            occupiedcells.append(e1)
+            whiteoccupiedcells.remove(g1)
+            whiteoccupiedcells.append(e1)
+            return
+        whiteking.pop(-1)
+        whiteking.append(e1)
+        occupiedcells.remove(g1)
+        occupiedcells.append(e1)
+        whiteoccupiedcells.remove(g1)
+        whiteoccupiedcells.append(e1)
+        whitecastlingrights['wk'] = True
+
+    def update_white_queen_castling_rights(self):
+        if castling['wq'][0] is False or castling['wq'][1] is False:
+            whitecastlingrights['wq'] = False
+            castling['wq'] = [False, False]
+            return
+        if a1 not in whiterooks:
+            whitecastlingrights['wq'] = False
+            castling['wq'] = [False, False]
+            return
+        if self.is_white_king_in_check():
+            whitecastlingrights['wq'] = False
+            return
+        if d1 in occupiedcells:
+            whitecastlingrights['wq'] = False
+            return
+        global whiteking
+        whiteking.pop(-1)
+        whiteking.append(d1)
+        occupiedcells.remove(e1)
+        occupiedcells.append(d1)
+        whiteoccupiedcells.remove(e1)
+        whiteoccupiedcells.append(d1)
+        if self.is_white_king_in_check():
+            whitecastlingrights['wq'] = False
+            whiteking.pop(-1)
+            whiteking.append(e1)
+            occupiedcells.remove(d1)
+            occupiedcells.append(e1)
+            whiteoccupiedcells.remove(d1)
+            whiteoccupiedcells.append(e1)
+            return
+        if c1 in occupiedcells:
+            whitecastlingrights['wq'] = False
+            whiteking.pop(-1)
+            whiteking.append(e1)
+            occupiedcells.remove(d1)
+            occupiedcells.append(e1)
+            whiteoccupiedcells.remove(d1)
+            whiteoccupiedcells.append(e1)
+            return
+        whiteking.pop(-1)
+        whiteking.append(c1)
+        occupiedcells.remove(d1)
+        occupiedcells.append(c1)
+        whiteoccupiedcells.remove(d1)
+        whiteoccupiedcells.append(c1)
+        if self.is_white_king_in_check():
+            whitecastlingrights['wq'] = False
+            whiteking.pop(-1)
+            whiteking.append(e1)
+            occupiedcells.remove(c1)
+            occupiedcells.append(e1)
+            whiteoccupiedcells.remove(c1)
+            whiteoccupiedcells.append(e1)
+            return
+        if b1 in occupiedcells:
+            whitecastlingrights['wq'] = False
+            whiteking.pop(-1)
+            whiteking.append(e1)
+            occupiedcells.remove(c1)
+            occupiedcells.append(e1)
+            whiteoccupiedcells.remove(c1)
+            whiteoccupiedcells.append(e1)
+            return
+        whiteking.pop(-1)
+        whiteking.append(b1)
+        occupiedcells.remove(c1)
+        occupiedcells.append(b1)
+        whiteoccupiedcells.remove(c1)
+        whiteoccupiedcells.append(b1)
+        if self.is_white_king_in_check():
+            whitecastlingrights['wq'] = False
+            whiteking.pop(-1)
+            whiteking.append(e1)
+            occupiedcells.remove(b1)
+            occupiedcells.append(e1)
+            whiteoccupiedcells.remove(b1)
+            whiteoccupiedcells.append(e1)
+            return
+        whiteking.pop(-1)
+        whiteking.append(e1)
+        occupiedcells.remove(b1)
+        occupiedcells.append(e1)
+        whiteoccupiedcells.remove(b1)
+        whiteoccupiedcells.append(e1)
+        whitecastlingrights['wq'] = True
+
+    def update_black_king_castling_rights(self):
+        if castling['bk'][0] is False or castling['bk'][1] is False:
+            blackcastlingrights['bk'] = False
+            castling['bk'] = [False, False]
+            return
+        if h8 not in blackrooks:
+            blackcastlingrights['bk'] = False
+            castling['bk'] = [False, False]
+            return
+        if self.is_black_king_in_check():
+            blackcastlingrights['bk'] = False
+            return
+        if f1 in occupiedcells:
+            blackcastlingrights['bk'] = False
+            return
+        global blackking
+        blackking.pop(-1)
+        blackking.append(f8)
+        occupiedcells.remove(e8)
+        occupiedcells.append(f8)
+        blackoccupiedcells.remove(e8)
+        blackoccupiedcells.append(f8)
+        if self.is_black_king_in_check():
+            blackcastlingrights['bk'] = False
+            blackking.pop(-1)
+            blackking.append(e8)
+            occupiedcells.remove(f8)
+            occupiedcells.append(e8)
+            blackoccupiedcells.remove(f8)
+            blackoccupiedcells.append(e8)
+            return
+        if g1 in occupiedcells:
+            blackcastlingrights['bk'] = False
+            blackking.pop(-1)
+            blackking.append(e8)
+            occupiedcells.remove(f8)
+            occupiedcells.append(e8)
+            blackoccupiedcells.remove(f8)
+            blackoccupiedcells.append(e8)
+            return
+        blackking.pop(-1)
+        blackking.append(g8)
+        occupiedcells.remove(f8)
+        occupiedcells.append(g8)
+        blackoccupiedcells.remove(f8)
+        blackoccupiedcells.append(g8)
+        if self.is_black_king_in_check():
+            blackcastlingrights['bk'] = False
+            blackking.pop(-1)
+            blackking.append(e8)
+            occupiedcells.remove(g8)
+            occupiedcells.append(e8)
+            blackoccupiedcells.remove(g8)
+            blackoccupiedcells.append(e8)
+            return
+        blackking.pop(-1)
+        blackking.append(e8)
+        occupiedcells.remove(g8)
+        occupiedcells.append(e8)
+        blackoccupiedcells.remove(g8)
+        blackoccupiedcells.append(e8)
+        blackcastlingrights['bk'] = True
+
+    def update_black_queen_castling_rights(self):
+        if castling['bq'][0] is False or castling['bq'][1] is False:
+            blackcastlingrights['bq'] = False
+            castling['bq'] = [False, False]
+            return
+        if a8 not in blackrooks:
+            blackcastlingrights['bk'] = False
+            castling['bk'] = [False, False]
+            return
+        if self.is_black_king_in_check():
+            blackcastlingrights['bq'] = False
+            return
+        if d1 in occupiedcells:
+            blackcastlingrights['bq'] = False
+            return
+        global blackking
+        blackking.pop(-1)
+        blackking.append(d8)
+        occupiedcells.remove(e8)
+        occupiedcells.append(d8)
+        blackoccupiedcells.remove(e8)
+        blackoccupiedcells.append(d8)
+        if self.is_black_king_in_check():
+            blackcastlingrights['bq'] = False
+            blackking.pop(-1)
+            blackking.append(e8)
+            occupiedcells.remove(d8)
+            occupiedcells.append(e8)
+            blackoccupiedcells.remove(d8)
+            blackoccupiedcells.append(e8)
+            return
+        if c1 in occupiedcells:
+            blackcastlingrights['bq'] = False
+            blackking.pop(-1)
+            blackking.append(e8)
+            occupiedcells.remove(d8)
+            occupiedcells.append(e8)
+            blackoccupiedcells.remove(d8)
+            blackoccupiedcells.append(e8)
+            return
+        blackking.pop(-1)
+        blackking.append(c8)
+        occupiedcells.remove(d8)
+        occupiedcells.append(c8)
+        blackoccupiedcells.remove(d8)
+        blackoccupiedcells.append(c8)
+        if self.is_black_king_in_check():
+            blackcastlingrights['bq'] = False
+            blackking.pop(-1)
+            blackking.append(e8)
+            occupiedcells.remove(c8)
+            occupiedcells.append(e8)
+            blackoccupiedcells.remove(c8)
+            blackoccupiedcells.append(e8)
+            return
+        if b1 in occupiedcells:
+            blackcastlingrights['bq'] = False
+            blackking.pop(-1)
+            blackking.append(e8)
+            occupiedcells.remove(c8)
+            occupiedcells.append(e8)
+            blackoccupiedcells.remove(c8)
+            blackoccupiedcells.append(e8)
+            return
+        blackking.pop(-1)
+        blackking.append(b1)
+        occupiedcells.remove(c8)
+        occupiedcells.append(b8)
+        blackoccupiedcells.remove(c8)
+        blackoccupiedcells.append(b8)
+        if self.is_black_king_in_check():
+            blackcastlingrights['bq'] = False
+            blackking.pop(-1)
+            blackking.append(e8)
+            occupiedcells.remove(b8)
+            occupiedcells.append(e8)
+            blackoccupiedcells.remove(b8)
+            blackoccupiedcells.append(e8)
+            return
+        blackking.pop(-1)
+        blackking.append(e8)
+        occupiedcells.remove(b8)
+        occupiedcells.append(e8)
+        blackoccupiedcells.remove(b8)
+        blackoccupiedcells.append(e8)
+        blackcastlingrights['bq'] = True
+
+    def update_castling_rights(self):
+        self.update_white_king_castling_rights()
+        self.update_white_queen_castling_rights()
+        self.update_black_king_castling_rights()
+        self.update_black_queen_castling_rights()
 
     @staticmethod
     def add_white_pawn(cell):
@@ -836,6 +1139,24 @@ class ListPiece:
                 enpassantcells.append(move.tocell.sumcoordinate(0, -1))
             if move.piece is 'bP' and move.fromcell.absfiledifference(move.tocell):
                 enpassantcells.append(move.tocell.sumcoordinate(0, 1))
+            if move.iswhiteturn:
+                if move.piece == 'wK':
+                    castling['wk'] = [False, False]
+                    castling['wq'] = [False, False]
+                if move.piece == 'wR':
+                    if move.fromcell == h1:
+                        castling['wk'] = [False, False]
+                    elif move.fromcell == a1:
+                        castling['wq'] = [False, False]
+            else:
+                if move.piece == 'bK':
+                    castling['bk'] = [False, False]
+                    castling['bq'] = [False, False]
+                if move.piece == 'bR':
+                    if move.fromcell == h8:
+                        castling['bk'] = [False, False]
+                    elif move.fromcell == a8:
+                        castling['bq'] = [False, False]
         else:
             if move.iswhiteturn:
                 if move.iskingcastling:
@@ -843,40 +1164,27 @@ class ListPiece:
                     whiteking.append(g1)
                     whiterooks.remove(h1)
                     whiterooks.append(f1)
-                    whitecastlingrights['wk'] = False
+                    castling['wk'] = [False, False]
                 if move.isqueencastling:
                     whiteking.remove(e1)
                     whiteking.append(c1)
                     whiterooks.remove(a1)
                     whiterooks.append(d1)
-                    whitecastlingrights['wq'] = False
+                    castling['wq'] = [False, False]
             else:
                 if move.iskingcastling:
                     blackking.remove(e8)
                     blackking.append(g8)
                     blackrooks.remove(h8)
                     blackrooks.append(f8)
-                    blackcastlingrights['bk'] = False
+                    castling['bk'] = [False, False]
                 if move.isqueencastling:
                     blackking.remove(e8)
                     blackking.append(c8)
                     blackrooks.remove(a8)
                     blackrooks.append(d8)
-                    blackcastlingrights['bq'] = False
-        if move.piece == 'wK':
-            castling[e1] = False
-        if move.piece == 'wR':
-            if move.fromcell == h1:
-                castling[h1] = False
-            elif move.fromcell == a1:
-                castling[a1] = False
-        if move.piece == 'bK':
-            castling[e8] = False
-        if move.piece == 'bR':
-            if move.fromcell == h8:
-                castling[h8] = False
-            elif move.fromcell == a8:
-                castling[a8] = False
+                    castling['bq'] = [False, False]
+        self.update_castling_rights()
 
     def undomove(self, move):
         activeoccupiedlist, enemyoccupiedlist = self._get_active_occupied_list(move.iswhiteturn)

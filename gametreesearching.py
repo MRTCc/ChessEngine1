@@ -257,6 +257,7 @@ class FenStrParser:
         self._parse_enpassant(tokens[3])
         if self.listpiece.isboardvalid() is False:
             raise ValueError("gametreesearching.py : FenstrParser --> Invalid fen string!!!")
+        self.listpiece.update_castling_rights()
         iswhiteturnstart = self._get_start_color(tokens[1])
         movesetter = UciMoveSetter(self.listpiece, movestr, iswhiteturnstart)
         movesetter()
