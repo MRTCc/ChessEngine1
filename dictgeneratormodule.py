@@ -602,10 +602,10 @@ def black_generator_moves():
 
 
 def list_piece_factory(hashgenerator=None):
-    if hashgenerator is not None:
+    if hashgenerator is None:
         return ListPiece()
     else:
-        return ListPieceHashValue()
+        return ListPieceHashValue(hashgenerator)
 
 
 class ListPiece:
@@ -1117,7 +1117,12 @@ class ListPiece:
         capturedpiecelist = self._get_list_by_piece(move.capturedpiece)
         promotionlist = self._get_list_by_piece(move.promotionto)
         if move.piece is not None:
-            occupiedcells.remove(move.fromcell)
+            try:
+                occupiedcells.remove(move.fromcell)
+            except ValueError as e:
+                print(self)
+                e.args += (str(move),)
+                raise e
             activeoccupiedlist.remove(move.fromcell)
             activepiecelist.remove(move.fromcell)
             if capturedpiecelist is not None:
@@ -1162,28 +1167,60 @@ class ListPiece:
         else:
             if move.iswhiteturn:
                 if move.iskingcastling:
+                    occupiedcells.remove(e1)
+                    whiteoccupiedcells.remove(e1)
                     whiteking.remove(e1)
+                    occupiedcells.append(g1)
+                    whiteoccupiedcells.append(g1)
                     whiteking.append(g1)
+                    occupiedcells.remove(h1)
+                    whiteoccupiedcells.remove(h1)
                     whiterooks.remove(h1)
+                    occupiedcells.append(f1)
+                    whiteoccupiedcells.append(f1)
                     whiterooks.append(f1)
                     castling['wk'] = [False, False]
                 if move.isqueencastling:
+                    occupiedcells.remove(e1)
+                    whiteoccupiedcells.remove(e1)
                     whiteking.remove(e1)
+                    occupiedcells.append(c1)
+                    whiteoccupiedcells.append(c1)
                     whiteking.append(c1)
+                    occupiedcells.remove(h1)
+                    whiteoccupiedcells.remove(h1)
                     whiterooks.remove(a1)
+                    occupiedcells.append(d1)
+                    whiteoccupiedcells.append(d1)
                     whiterooks.append(d1)
                     castling['wq'] = [False, False]
             else:
                 if move.iskingcastling:
+                    occupiedcells.remove(e8)
+                    blackoccupiedcells.remove(e8)
                     blackking.remove(e8)
+                    occupiedcells.append(g8)
+                    blackoccupiedcells.append(g8)
                     blackking.append(g8)
+                    occupiedcells.remove(h8)
+                    blackoccupiedcells.remove(h8)
                     blackrooks.remove(h8)
+                    occupiedcells.append(f8)
+                    blackoccupiedcells.append(f8)
                     blackrooks.append(f8)
                     castling['bk'] = [False, False]
                 if move.isqueencastling:
+                    occupiedcells.remove(e8)
+                    blackoccupiedcells.remove(e8)
                     blackking.remove(e8)
+                    occupiedcells.append(c8)
+                    blackoccupiedcells.append(c8)
                     blackking.append(c8)
+                    occupiedcells.remove(a8)
+                    blackoccupiedcells.remove(a8)
                     blackrooks.remove(a8)
+                    occupiedcells.append(d8)
+                    blackoccupiedcells.append(d8)
                     blackrooks.append(d8)
                     castling['bq'] = [False, False]
         self.update_castling_rights()
@@ -1452,25 +1489,25 @@ class ListPiece:
     def __str__(self):
 
         # solo per debug
-        # print("occupiedcells: ", occupiedcells)
-        # print("whiteoccupiedcells: ", whiteoccupiedcells)
-        # print("blackoccupiedcells: ", blackoccupiedcells)
-        # print("whitepawns: ", whitepawns)
-        # print("blackpawns: ", blackpawns)
-        # print("promotioncells: ", promotioncells)
-        # print("whiterooks: ", whiterooks)
-        # print("blackrooks: ", blackrooks)
-        # print("whiteknights: ", whiteknights)
-        # print("blackknights: ", blackknights)
-        # print("whitebishops: ", whitebishops)
-        # print("blackbishops: ", blackbishops)
-        # print("whitequeen: ", whitequeen)
-        # print("blackqueen: ", blackqueen)
-        # print("whiteking: ", whiteking)
-        # print("blackking: ", blackking)
-        # print("enpassantcells: ", enpassantcells)
-        # print("whitecastlingrights: ", whitecastlingrights)
-        # print("blackcastlingrights: ", blackcastlingrights)
+        print("occupiedcells: ", occupiedcells)
+        print("whiteoccupiedcells: ", whiteoccupiedcells)
+        print("blackoccupiedcells: ", blackoccupiedcells)
+        print("whitepawns: ", whitepawns)
+        print("blackpawns: ", blackpawns)
+        print("promotioncells: ", promotioncells)
+        print("whiterooks: ", whiterooks)
+        print("blackrooks: ", blackrooks)
+        print("whiteknights: ", whiteknights)
+        print("blackknights: ", blackknights)
+        print("whitebishops: ", whitebishops)
+        print("blackbishops: ", blackbishops)
+        print("whitequeen: ", whitequeen)
+        print("blackqueen: ", blackqueen)
+        print("whiteking: ", whiteking)
+        print("blackking: ", blackking)
+        print("enpassantcells: ", enpassantcells)
+        print("whitecastlingrights: ", whitecastlingrights)
+        print("blackcastlingrights: ", blackcastlingrights)
 
         # bisogna costruire la variabile board
         board = {}
