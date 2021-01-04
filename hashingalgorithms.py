@@ -74,37 +74,12 @@ class Zobrist(HashingAlgorithm):
             zobristkey ^= self.zenpassant[cell.getfile() - 1]
         return zobristkey
 
-    """
-    def _getcastlingpiecestype(self):
-        kingtype = self._getpiecetype(pcsm.King(alg.a1, mvm.CastlingRights()))
-        rooktype = self._getpiecetype(pcsm.Rook(alg.a1, None, None))
-        return kingtype, rooktype
-    """
+    def updatehashkey(self, key, listpiece, activecolor):
+        newzobristkey = key
+        if len(listpiece.moves) < 1:
+            raise ValueError("Zobrist --> updatezobristkey : no update needed, because there are no moves applied!!!")
+        move = listpiece.moves[-1]
+        if move.iswhiteturn != activecolor:
+            newzobristkey ^= self.zblackmove
 
-    @staticmethod
-    def _getcastlingcells(move):
-        if move.iskingcastling:
-            if move.iswhiteturn:
-                kingfrom = alg.celllist.index(alg.e1)
-                kingto = alg.celllist.index(alg.g1)
-                rookfrom = alg.celllist.index(alg.h1)
-                rookto = alg.celllist.index(alg.f1)
-            else:
-                kingfrom = alg.celllist.index(alg.e8)
-                kingto = alg.celllist.index(alg.g8)
-                rookfrom = alg.celllist.index(alg.h8)
-                rookto = alg.celllist.index(alg.f8)
-        elif move.isqueencastling:
-            if move.iswhiteturn:
-                kingfrom = alg.celllist.index(alg.e1)
-                kingto = alg.celllist.index(alg.c1)
-                rookfrom = alg.celllist.index(alg.a1)
-                rookto = alg.celllist.index(alg.d1)
-            else:
-                kingfrom = alg.celllist.index(alg.e8)
-                kingto = alg.celllist.index(alg.c8)
-                rookfrom = alg.celllist.index(alg.a8)
-                rookto = alg.celllist.index(alg.d8)
-        else:
-            raise ValueError("Zobrist --> _getcastlingcells : Invalid castling move!!!")
-        return kingfrom, kingto, rookfrom, rookto
+        return newzobristkey

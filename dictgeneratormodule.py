@@ -39,6 +39,7 @@ whitecastlingrights = {'wk': True, 'wq': True}
 castling = {e1: False, h1: False, a1: False, e8: False, h8: False, a8: False}
 blackcastlingrights = {'bk': True, 'bq': True}
 
+
 whitepawnonestep = {a7: a8, b7: b8, c7: c8, d7: d8, e7: e8, f7: f8, g7: g8, h7: h8,
                     a6: a7, b6: b7, c6: c7, d6: d7, e6: e7, f6: f7, g6: g7, h6: h7,
                     a5: a6, b5: b6, c5: c6, d5: d6, e5: e6, f5: f6, g5: g6, h5: h6,
@@ -599,10 +600,18 @@ def black_generator_moves():
         yield queen_castling_move_factory(iswhiteturn=False)
 
 
+def list_piece_factory(hashgenerator=None):
+    if hashgenerator is not None:
+        return ListPiece()
+    else:
+        return ListPieceHashValue()
+
+
 class ListPiece:
     def __init__(self):
         self.moves = []
         self.castlings = []
+        self.enpassants = []
         global occupiedcells, whiteoccupiedcells, blackoccupiedcells, whitepawns, blackpawns, whiterooks, blackrooks
         global whiteknights, blackknights, whitebishops, blackbishops, whitequeen, blackqueen, whiteking, blackking
         global enpassantcells, whitecastlingrights, blackcastlingrights, castling
@@ -794,8 +803,10 @@ class ListPiece:
 
     def applymove(self, move):
         self.moves.append(move)
-        global castling
+        global castling, enpassantcells
         self.castlings.append(castling)
+        self.enpassants.append(enpassantcells)
+        enpassantcells = []
         activeoccupiedlist, enemyoccupiedlist = self._get_active_occupied_list(move.iswhiteturn)
         activepiecelist = self._get_list_by_piece(move.piece)
         capturedpiecelist = self._get_list_by_piece(move.capturedpiece)
@@ -805,22 +816,26 @@ class ListPiece:
             activeoccupiedlist.remove(move.fromcell)
             activepiecelist.remove(move.fromcell)
             if capturedpiecelist is not None:
-                if move.isenpassant:
+                if move.tocell in enpassantcells:
                     if move.iswhiteturn:
-                        tocell = move.tocell.sumcoordinate(0, -1)
+                        hitcell = move.tocell.sumcoordinate(0, -1)
                     else:
-                        tocell = move.tocell.sumcoordinate(0, +1)
+                        hitcell = move.tocell.sumcoordinate(0, +1)
                 else:
-                    tocell = move.tocell
-                occupiedcells.remove(tocell)
-                enemyoccupiedlist.remove(tocell)
-                capturedpiecelist.remove(tocell)
+                    hitcell = move.tocell
+                occupiedcells.remove(hitcell)
+                enemyoccupiedlist.remove(hitcell)
+                capturedpiecelist.remove(hitcell)
             if promotionlist is not None:
                 promotionlist.append(move.tocell)
             else:
                 activepiecelist.append(move.tocell)
             activeoccupiedlist.append(move.tocell)
             occupiedcells.append(move.tocell)
+            if move.piece is 'wP' and move.fromcell.absfiledifference(move.tocell):
+                enpassantcells.append(move.tocell.sumcoordinate(0, -1))
+            if move.piece is 'bP' and move.fromcell.absfiledifference(move.tocell):
+                enpassantcells.append(move.tocell.sumcoordinate(0, 1))
         else:
             if move.iswhiteturn:
                 if move.iskingcastling:
@@ -878,12 +893,12 @@ class ListPiece:
             if capturedpiecelist is not None:
                 if move.isenpassant:
                     sumcoor = {True: (0, -1), False: (0, 1)}
-                    tocell = move.tocell.sumcoordinate(sumcoor[move.iswhiteturn])
+                    hitcell = move.tocell.sumcoordinate(sumcoor[move.iswhiteturn])
                 else:
-                    tocell = move.tocell
-                occupiedcells.append(tocell)
-                enemyoccupiedlist.append(tocell)
-                capturedpiecelist.append(tocell)
+                    hitcell = move.tocell
+                occupiedcells.append(hitcell)
+                enemyoccupiedlist.append(hitcell)
+                capturedpiecelist.append(hitcell)
             occupiedcells.append(move.fromcell)
             activeoccupiedlist.append(move.fromcell)
             activepiecelist.append(move.fromcell)
@@ -914,8 +929,9 @@ class ListPiece:
                     blackrooks.remove(d8)
                     blackrooks.append(a8)
                     blackcastlingrights['bq'] = True
-        global castling
+        global castling, enpassantcells
         castling = self.castlings.pop(-1)
+        enpassantcells = self.enpassants.pop(-1)
         self.moves.remove(move)
 
     @staticmethod
@@ -1186,6 +1202,146 @@ class ListPiece:
 
         return result
 
+
+class ListPieceHashValue(ListPiece):
+    def __init__(self):
+        super().__init__()
+        self.enpassants = []
+        self.castlingrights = []
+
+    def applymove(self, move):
+        self.moves.append(move)
+        global castling, enpassantcells
+        self.castlings.append(castling)
+        self.enpassants.append(enpassantcells)
+        enpassantcells = []
+        activeoccupiedlist, enemyoccupiedlist = self._get_active_occupied_list(move.iswhiteturn)
+        activepiecelist = self._get_list_by_piece(move.piece)
+        capturedpiecelist = self._get_list_by_piece(move.capturedpiece)
+        promotionlist = self._get_list_by_piece(move.promotionto)
+        if move.piece is not None:
+            occupiedcells.remove(move.fromcell)
+            activeoccupiedlist.remove(move.fromcell)
+            activepiecelist.remove(move.fromcell)
+            if capturedpiecelist is not None:
+                if move.tocell in enpassantcells:
+                    if move.iswhiteturn:
+                        hitcell = move.tocell.sumcoordinate(0, -1)
+                    else:
+                        hitcell = move.tocell.sumcoordinate(0, +1)
+                else:
+                    hitcell = move.tocell
+                occupiedcells.remove(hitcell)
+                enemyoccupiedlist.remove(hitcell)
+                capturedpiecelist.remove(hitcell)
+            if promotionlist is not None:
+                promotionlist.append(move.tocell)
+            else:
+                activepiecelist.append(move.tocell)
+            activeoccupiedlist.append(move.tocell)
+            occupiedcells.append(move.tocell)
+            if move.piece is 'wP' and move.fromcell.absfiledifference(move.tocell):
+                enpassantcells.append(move.tocell.sumcoordinate(0, -1))
+            if move.piece is 'bP' and move.fromcell.absfiledifference(move.tocell):
+                enpassantcells.append(move.tocell.sumcoordinate(0, 1))
+        else:
+            if move.iswhiteturn:
+                if move.iskingcastling:
+                    whiteking.remove(e1)
+                    whiteking.append(g1)
+                    whiterooks.remove(h1)
+                    whiterooks.append(f1)
+                    whitecastlingrights['wk'] = False
+                if move.isqueencastling:
+                    whiteking.remove(e1)
+                    whiteking.append(c1)
+                    whiterooks.remove(a1)
+                    whiterooks.append(d1)
+                    whitecastlingrights['wq'] = False
+            else:
+                if move.iskingcastling:
+                    blackking.remove(e8)
+                    blackking.append(g8)
+                    blackrooks.remove(h8)
+                    blackrooks.append(f8)
+                    blackcastlingrights['bk'] = False
+                if move.isqueencastling:
+                    blackking.remove(e8)
+                    blackking.append(c8)
+                    blackrooks.remove(a8)
+                    blackrooks.append(d8)
+                    blackcastlingrights['bq'] = False
+        if move.piece == 'wK':
+            castling[e1] = False
+        if move.piece == 'wR':
+            if move.fromcell == h1:
+                castling[h1] = False
+            elif move.fromcell == a1:
+                castling[a1] = False
+        if move.piece == 'bK':
+            castling[e8] = False
+        if move.piece == 'bR':
+            if move.fromcell == h8:
+                castling[h8] = False
+            elif move.fromcell == a8:
+                castling[a8] = False
+
+
+    def undomove(self, move):
+        activeoccupiedlist, enemyoccupiedlist = self._get_active_occupied_list(move.iswhiteturn)
+        activepiecelist = self._get_list_by_piece(move.piece)
+        capturedpiecelist = self._get_list_by_piece(move.capturedpiece)
+        promotionlist = self._get_list_by_piece(move.promotionto)
+        if activepiecelist is not None:
+            occupiedcells.remove(move.tocell)
+            activeoccupiedlist.remove(move.tocell)
+            if promotionlist is not None:
+                promotionlist.remove(move.tocell)
+            else:
+                activepiecelist.remove(move.tocell)
+            if capturedpiecelist is not None:
+                if move.isenpassant:
+                    sumcoor = {True: (0, -1), False: (0, 1)}
+                    hitcell = move.tocell.sumcoordinate(sumcoor[move.iswhiteturn])
+                else:
+                    hitcell = move.tocell
+                occupiedcells.append(hitcell)
+                enemyoccupiedlist.append(hitcell)
+                capturedpiecelist.append(hitcell)
+            occupiedcells.append(move.fromcell)
+            activeoccupiedlist.append(move.fromcell)
+            activepiecelist.append(move.fromcell)
+        else:
+            if move.iswhiteturn:
+                if move.iskingcastling:
+                    whiteking.remove(g1)
+                    whiteking.append(e1)
+                    whiterooks.remove(f1)
+                    whiterooks.append(h1)
+                    whitecastlingrights['wk'] = True
+                if move.isqueencastling:
+                    whiteking.remove(c1)
+                    whiteking.append(e1)
+                    whiterooks.remove(d1)
+                    whiterooks.append(a1)
+                    whitecastlingrights['wq'] = True
+            else:
+                if move.iskingcastling:
+                    blackking.remove(g8)
+                    blackking.append(e8)
+                    blackrooks.remove(f8)
+                    blackrooks.append(h8)
+                    blackcastlingrights['bk'] = True
+                if move.isqueencastling:
+                    blackking.remove(c8)
+                    blackking.append(e8)
+                    blackrooks.remove(d8)
+                    blackrooks.append(a8)
+                    blackcastlingrights['bq'] = True
+        global castling, enpassantcells
+        castling = self.castlings.pop(-1)
+        enpassantcells = self.enpassants.pop(-1)
+        self.moves.remove(move)
 
 if __name__ == '__main__':
     l = ListPiece()

@@ -34,8 +34,8 @@ evaluationtime = 0
 checkmatevalue = 10000
 hashingmethod = 'zobrist'
 isactivetraspositiontable = False     # default True
-algorithm = 'iterdeep'                    # default alphabeta
-maxply = 2                  # default 5
+algorithm = 'minmax'                    # default alphabeta
+maxply = 4                  # default 5
 transpositiontable = None
 evalfunctype = 2
 hashgenerator = None
@@ -147,7 +147,7 @@ class FenStrParser:
         self.algorithm = algorithm
         self.transpositiontable = transpositiontable
         self.hashgenerator = hashgenerator
-        self.listpiece = gen.ListPiece()
+        self.listpiece = gen.list_piece_factory(self.hashgenerator)
 
     def _parse_castling_rights(self, castlingstring):
         whitekingside, whitequeenside, blackkingside, blackqueenside = False, False, False, False
