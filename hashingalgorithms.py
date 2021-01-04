@@ -81,5 +81,82 @@ class Zobrist(HashingAlgorithm):
         move = listpiece.moves[-1]
         if move.iswhiteturn != activecolor:
             newzobristkey ^= self.zblackmove
+        for index in range(0, len(listpiece.changedenpassant)):
+            if listpiece.changedenpassant[index]:
+                newzobristkey ^= self.zenpassant[index]
+        for index in range(0, len(listpiece.changedcastling)):
+            if listpiece.changedcastling[index]:
+                newzobristkey ^= self.zcastle[index]
+        if move.iswhiteturn:
+            color = 0
+            capturepiececolor = 1
+        else:
+            color = 1
+            capturepiececolor = 0
+        if move.piece is not None:
+            piece = move.capturedpiece
+            if piece:
+                cellnumber = self._getcellnumber(piece)
+                piecetype = self._getpiecetype(piece)
+                newzobristkey ^= self.zarray[capturepiececolor][piecetype][cellnumber]
+            piece = move.promotionto
+            if piece:
+                cellnumber = self._getcellnumber(piece)
+                piecetype = self._getpiecetype(piece)
+                newzobristkey ^= self.zarray[color][piecetype][cellnumber]
+            piece = move.piece
+            cellnumber = alg.celllist.index(move.fromcell)
+            piecetype = self._getpiecetype(piece)
+            newzobristkey ^= self.zarray[color][piecetype][cellnumber]
+            if move.promotionto is None:
+                cellnumber = self._getcellnumber(piece)
+                newzobristkey ^= self.zarray[color][piecetype][cellnumber]
+        else:
 
+            if move.iswhiteturn:
+                if move.iskingcastling:
+                    kingtype = self._getpiecetype('wK')
+                    rooktype = self._getpiecetype('wR')
+                    kingfromnumber = self._getcellnumber(alg.e1)
+                    kingtonumber = self._getcellnumber(alg.g1)
+                    rookfromnumber = self._getcellnumber(alg.h1)
+                    rooktonumber = self._getcellnumber(alg.f1)
+                    newzobristkey ^= self.zarray[0][kingtype][kingfromnumber]
+                    newzobristkey ^= self.zarray[0][kingtype][kingtonumber]
+                    newzobristkey ^= self.zarray[0][rooktype][rookfromnumber]
+                    newzobristkey ^= self.zarray[0][rooktype][rooktonumber]
+                if move.isqueencastling:
+                    kingtype = self._getpiecetype('wK')
+                    rooktype = self._getpiecetype('wR')
+                    kingfromnumber = self._getcellnumber(alg.e1)
+                    kingtonumber = self._getcellnumber(alg.c1)
+                    rookfromnumber = self._getcellnumber(alg.a1)
+                    rooktonumber = self._getcellnumber(alg.d1)
+                    newzobristkey ^= self.zarray[0][kingtype][kingfromnumber]
+                    newzobristkey ^= self.zarray[0][kingtype][kingtonumber]
+                    newzobristkey ^= self.zarray[0][rooktype][rookfromnumber]
+                    newzobristkey ^= self.zarray[0][rooktype][rooktonumber]
+            else:
+                if move.iskingcastling:
+                    kingtype = self._getpiecetype('bK')
+                    rooktype = self._getpiecetype('bR')
+                    kingfromnumber = self._getcellnumber(alg.e8)
+                    kingtonumber = self._getcellnumber(alg.g8)
+                    rookfromnumber = self._getcellnumber(alg.h8)
+                    rooktonumber = self._getcellnumber(alg.f8)
+                    newzobristkey ^= self.zarray[1][kingtype][kingfromnumber]
+                    newzobristkey ^= self.zarray[1][kingtype][kingtonumber]
+                    newzobristkey ^= self.zarray[1][rooktype][rookfromnumber]
+                    newzobristkey ^= self.zarray[1][rooktype][rooktonumber]
+                if move.isqueencastling:
+                    kingtype = self._getpiecetype('bK')
+                    rooktype = self._getpiecetype('bR')
+                    kingfromnumber = self._getcellnumber(alg.e8)
+                    kingtonumber = self._getcellnumber(alg.c8)
+                    rookfromnumber = self._getcellnumber(alg.a8)
+                    rooktonumber = self._getcellnumber(alg.d8)
+                    newzobristkey ^= self.zarray[1][kingtype][kingfromnumber]
+                    newzobristkey ^= self.zarray[1][kingtype][kingtonumber]
+                    newzobristkey ^= self.zarray[1][rooktype][rookfromnumber]
+                    newzobristkey ^= self.zarray[1][rooktype][rooktonumber]
         return newzobristkey

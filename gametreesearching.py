@@ -814,5 +814,8 @@ if __name__ == '__main__':
     initgameposition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 moves".split())
     zobrist = hsa.Zobrist()
     key = zobrist.gethashkey(rootposition.listpiece, True)
-    print(key)
+    move = mvm.Move('wP', e2, e4, True, None, False, False, None, True, False)
+    rootposition.listpiece.applymove(move)
+    newkey = zobrist.updatehashkey(key, rootposition.listpiece, True)
+    print(key, newkey)
 
