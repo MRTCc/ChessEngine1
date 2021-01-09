@@ -33,8 +33,8 @@ evaluationtime = 0
 # engine settings
 checkmatevalue = 10000
 hashingmethod = 'zobrist'
-isactivetraspositiontable = True     # default True
-algorithm = 'alphabeta'                    # default alphabeta
+isactivetraspositiontable = False     # default True
+algorithm = 'minmax'                    # default alphabeta
 maxply = 4                 # default 5
 transpositiontable = None
 evalfunctype = 2
@@ -1020,7 +1020,7 @@ class IterativeDeepeningGamePosition:
 
 if __name__ == '__main__':
     initnewgame()
-    initgameposition("k7/8/8/8/8/8/8/4K2R w K - 0 0 moves".split())
+    initgameposition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0 moves".split())
     
 
 
